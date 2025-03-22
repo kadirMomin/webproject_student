@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Getting Started - Your Platform Name</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2; /* Açık gri arka plan */
+            padding: 20px;
+        }
+
+        header {
+            background-color: #343a40; /* Siyaha yakın koyu gri */
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        h1 {
+            margin: 0;
+            color: #fff; /* Başlık metni beyaz */
+            font-size: 24px;
+            flex: 1;
+            text-align: center;
+        }
+
+        #logo {
+            width: 150px;
+            margin-right: 20px;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: #fff; /* Menü linkleri beyaz */
+            text-decoration: none;
+            font-size: 16px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        nav a:hover {
+            background-color: #95c11e;
+            color: #000;
+        }
+
+        #search-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #search-input {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            color: #000;
+            width: 200px;
+        }
+
+        #search-button {
+            padding: 10px 15px;
+            font-size: 16px;
+            background-color: #007bff; /* Bootstrap mavisi */
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #search-button:hover {
+            background-color: #0056b3; /* Daha koyu mavi */
+        }
+
+        #getting-started-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            text-align: left;
+            background-color: #fff;  /* Beyaz zemin */
+            border-radius: 6px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 95%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: white;
+            color: black;
+        }
+
+        th,
+        td {
+            border: 1px solid black;
+            padding: 25px;
+            text-align: left;
+            min-width: 150px;
+        }
+
+        th {
+            background-color: #4caf50; /* Yeşil */
+            color: white;
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .badge-warning {
+            background-color: #ffc107; /* Sarı */
+            color: black;
+        }
+
+        .badge-success {
+            background-color: #28a745; /* Yeşil */
+            color: white;
+        }
+
+        .btn {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            text-decoration: none;
+            color: white;
+        }
+
+        .btn-info {
+            background-color: #17a2b8; /* Mavi */
+        }
+
+        .btn-info:hover {
+            background-color: #138496; /* Daha koyu mavi */
+        }
+
+        a {
+            color: #007bff; /* Mavi */
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            background-color: #343a40; /* Siyaha yakın koyu gri */
+            padding: 10px;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            color: #fff; /* Beyaz metin */
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <img id="logo" src="1.png" alt="Logo">
+        <h1>Getting Started</h1>
+        <nav>
+            <div id="search-bar">
+                <input type="text" id="search-input" placeholder="Search projects...">
+                <button id="search-button">Search</button>
+            </div>
+            <a href="insert.jsp">HOME</a>
+            <a href="GETTINGSTARTED.html">Projects</a>
+            <a href="upload.jsp">UPLOAD</a>
+            <a href="FAQs.jsp">FAQs</a>
+            <a href="index2.jsp">SIGN UP OR SIGN IN</a>
+        </nav>
+    </header>
+
+    <div id="getting-started-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Proje Konusu</th>
+                    <th>Yüklenen Zamanı</th>
+                    <th>Ders Adı</th>
+                    <th>Danışman Adı</th>
+                    <th>GitHub Link</th>
+                    <th>Project Description</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Rezervasyon Sistemi</td>
+                    <td>2014-01-01 / 2014-01-15</td>
+                    <td>İnternet Programlama 1</td>
+                    <td>Yakup Kutu</td>
+                    <td><a href="https://github.com/sample-repo-1" target="_blank">GitHub Link</a></td>
+                    <td>Bu proje, bir rezervasyon sistemi örneğidir.</td>
+                    <td><button class="btn btn-info">Detay Göster</button></td>
+                </tr>
+                <tr>
+                    <td>Rezervasyon Sistemi</td>
+                    <td>2014-01-01 / 2014-01-15</td>
+                    <td>İnternet Programlama 1</td>
+                    <td>Yakup Kutu</td>
+                    <td><a href="https://github.com/sample-repo-2" target="_blank">GitHub Link</a></td>
+                    <td>Bu proje, internet programlama dersi için geliştirilmiştir.</td>
+                    <td><button class="btn btn-info">Detay Göster</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>
