@@ -146,7 +146,7 @@
                 <input type="text" id="githubLink" name="githubLink" required>
                 <!-- Proje Açıklaması -->
                 <label for="projectDescription">Proje Açıklaması:</label>
-                <textarea id="projectDescription" name="projectDescription" rows="5" required></textarea>
+                <textarea id="projectDescription" name="projectDescription" rows="5" required></textarea> -->
                 <!-- Proje Resmi -->
                 <label for="projectImage">Proje Resmi:</label>
                 <input type="file" id="projectImage" name="projectImage" accept="image/*" required> 

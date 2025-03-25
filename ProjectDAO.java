@@ -96,4 +96,79 @@ public class ProjectDAO {
         return projects;
     }
 
+    // Yeni eklenen metod: Proje konusuna göre tek bir proje getirir.
+    public Project getProjectByTopic(String projectTopic) {
+        String sql = "SELECT projectTopic, uploadStartDate, uploadEndDate, courseName, advisorName, githubLink, projectDescription, projectImage FROM uploadfile WHERE projectTopic = ?";
+        try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS); PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, projectTopic);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String topic = rs.getString("projectTopic");
+                    java.sql.Date uploadStartDate = rs.getDate("uploadStartDate");
+                    java.sql.Date uploadEndDate = rs.getDate("uploadEndDate");
+                    String courseName = rs.getString("courseName");
+                    String advisorName = rs.getString("advisorName");
+                    String githubLink = rs.getString("githubLink");
+                    String projectDescription = rs.getString("projectDescription");
+                    String projectImage = rs.getString("projectImage");
+                    return new Project(topic, uploadStartDate, uploadEndDate, courseName, advisorName, githubLink, projectDescription, projectImage);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public List<String> searchProjectTopics(String term) {
+        List<String> topics = new ArrayList<>();
+        String sql = "SELECT DISTINCT projectTopic FROM uploadfile WHERE projectTopic LIKE ?";
+        try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, "%" + term + "%");
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    topics.add(rs.getString("projectTopic"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return topics;
+    }
+    
+    // ProjectDAO.java içerisinde ekleyin:
+public List<Project> searchProjects(String term) {
+    List<Project> projects = new ArrayList<>();
+    // Girilen terimi içeren kayıtlar bulunur; örneğin, benzerlik sağlamak için LIKE operatörü kullanıyoruz.
+    String sql = "SELECT projectTopic, uploadStartDate, uploadEndDate, courseName, advisorName, githubLink, projectDescription, projectImage " +
+                 "FROM uploadfile " +
+                 "WHERE projectTopic LIKE ? " +
+                 "ORDER BY (projectTopic LIKE ?) DESC, projectTopic";
+    try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        String likeTerm = "%" + term + "%";
+        stmt.setString(1, likeTerm);
+        // Sıralamada, tam eşleşme veya başında gelen kayıtları öne çıkarmak için tekrar LIKE operatörünü kullanıyoruz.
+        stmt.setString(2, term + "%");
+        try (ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                String topic = rs.getString("projectTopic");
+                java.sql.Date startDate = rs.getDate("uploadStartDate");
+                java.sql.Date endDate = rs.getDate("uploadEndDate");
+                String courseName = rs.getString("courseName");
+                String advisorName = rs.getString("advisorName");
+                String githubLink = rs.getString("githubLink");
+                String projectDescription = rs.getString("projectDescription");
+                String projectImage = rs.getString("projectImage");
+                projects.add(new Project(topic, startDate, endDate, courseName, advisorName, githubLink, projectDescription, projectImage));
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return projects;
+}
+
+
 }

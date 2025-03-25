@@ -1,16 +1,18 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" import="java.util.*, project.Project, project.ProjectDAO" %>
-
 <%
     // Kullanıcının oturum açıp açmadığını kontrol ediyoruz.
     String user = (String) session.getAttribute("user");
     if (user == null) {
-        // Oturum açılmamışsa, login sayfasına yönlendiriyoruz.
-        // Burada "return" parametresini project.jsp olarak belirtiyoruz.
         response.sendRedirect("index2.jsp?error=loginfirst&return=project.jsp");
         return;
     }
+    
+    // Sayfa ilk açıldığında tüm projeleri getiriyoruz.
+    List<Project> projectList = (List<Project>) request.getAttribute("projectList");
+    if (projectList == null) {
+        projectList = new ProjectDAO().getAllProjects();
+    }
 %>
-  
 <!DOCTYPE html> 
 <html lang="en">
 <head>
@@ -60,10 +62,12 @@
       background-color: #95c11e;
       color: #000;
     }
+    /* Arama kutusu ve öneri listesi için ek CSS */
     #search-bar {
       display: flex;
       align-items: center;
       gap: 10px;
+      position: relative;
     }
     #search-input {
       padding: 10px;
@@ -87,24 +91,43 @@
     #search-button:hover {
       background-color: #0056b3;
     }
+    /* Öneri listesi stili */
+    #suggestions {
+      position: absolute;
+      top: 40px;
+      left: 0;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      width: 100%;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      z-index: 1000;
+      display: none;
+    }
+    #suggestions li {
+      padding: 8px;
+      cursor: pointer;
+    }
+    #suggestions li:hover {
+      background-color: #f2f2f2;
+    }
     /* Container: sol tarafa hizalanmış */
     #getting-started-container {
       max-width: 1200px;
-      margin: 20px 0;  /* Sağ-sol margin sıfır */
+      margin: 20px 0;
       padding: 20px;
       background-color: #fff;
       border-radius: 6px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
       text-align: left;
     }
-    /* Tabloyu container’ın soluna yaslamak için margin sol sıfır */
     #getting-started-container table {
       width: 100%;
-      margin: 20px 0 20px 0; /* Tüm kenarlarda 20px üst-alt, 0 sol-sağ */
+      margin: 20px 0;
       border-collapse: collapse;
-      background-color: transparent; /* Container'ın beyazı görünür */
+      background-color: transparent;
     }
-    /* Tüm hücrelere beyaz arka plan */
     #getting-started-container th,
     #getting-started-container td {
       background-color: #fff;
@@ -156,6 +179,7 @@
       <div id="search-bar">
         <input type="text" id="search-input" placeholder="Search projects...">
         <button id="search-button">Search</button>
+        <ul id="suggestions"></ul>
       </div>
       <a href="insert.jsp">HOME</a>
       <a href="project.jsp">Projects</a>
@@ -164,8 +188,10 @@
       <a href="index2.jsp">SIGN UP OR SIGN IN</a>
     </nav>
   </header>
+  
+  <!-- Proje listesi bölümü -->
   <div id="getting-started-container">
-    <table>
+    <table id="projects-table">
       <thead>
         <tr>
           <th>Proje Konusu</th>
@@ -173,70 +199,120 @@
           <th>Ders Adı</th>
           <th>Danışman Adı</th>
           <th>GitHub Link</th>
-          <th>Proje Açıklaması</th>
           <th>İşlemler</th>
         </tr>
       </thead>
-      <tbody>
-        <%
-            // Servlet'ten gönderilen "projectList" attribute'unu kontrol edelim
-            List<Project> projectList = (List<Project>) request.getAttribute("projectList");
-            if (projectList == null) {
-                projectList = new ProjectDAO().getAllProjects();
-            }
-            
-            if (projectList != null && !projectList.isEmpty()) {
-                for (Project p : projectList) {
-                    // "Yüklenen Zamanı" sütununda StartDate / EndDate şeklinde göstereceğiz
-                    String zamanStr = p.getUploadStartDate() + " / " + p.getUploadEndDate();
-        %>
+      <tbody id="projects-body">
+        <% for(Project p : projectList) {
+             String zamanStr = p.getUploadStartDate() + " / " + p.getUploadEndDate(); %>
         <tr>
           <td><%= p.getProjectTopic() %></td>
           <td><%= zamanStr %></td>
           <td><%= p.getCourseName() %></td>
           <td><%= p.getAdvisorName() %></td>
           <td><a href="<%= p.getGithubLink() %>" target="_blank">GitHub Link</a></td>
-          <td><%= p.getProjectDescription() %></td>
           <td>
             <form action="ProjectDetailServlet" method="get" style="margin:0;">
-              <!-- Burada benzersiz bir parametre kullanmalısınız. Örneğin, proje konusu veya id -->
               <input type="hidden" name="projectTopic" value="<%= p.getProjectTopic() %>">
               <button type="submit" class="btn btn-info">Detay Göster</button>
             </form>
           </td>
         </tr>
-        <%
-                }
-            } else {
-        %>
-        <tr>
-          <td colspan="7">Kayıt bulunamadı!</td>
-        </tr>
-        <%
-            }
-        %>
+        <% } %>
       </tbody>
     </table>
   </div>
+  
   <footer>
     <p>&copy; 2025 Your Platform Name. All rights reserved.</p>
   </footer>
       
-       <!-- Sayfa yüklendiğinde localStorage'dan dili kontrol eden ve uygulayan JavaScript kodu -->
+  <!-- JavaScript: Arama kutusu için AJAX ile öneri getirme ve arama sonuçlarını güncelleme -->
   <script>
+    const searchInput = document.getElementById('search-input');
+    const suggestionsList = document.getElementById('suggestions');
+    const searchButton = document.getElementById('search-button');
+    const projectsBody = document.getElementById('projects-body');
+
+    // Öneri getirme (input değişiminde)
+    searchInput.addEventListener('input', function() {
+      const term = searchInput.value.trim();
+      if(term.length === 0){
+          suggestionsList.style.display = 'none';
+          return;
+      }
+      fetch('ProjectSearchServlet?term=' + encodeURIComponent(term))
+        .then(response => response.json())
+        .then(data => {
+          suggestionsList.innerHTML = '';
+          if(data.length > 0){
+            data.forEach(item => {
+              const li = document.createElement('li');
+              li.textContent = item;
+              li.addEventListener('click', () => {
+                searchInput.value = item;
+                suggestionsList.style.display = 'none';
+              });
+              suggestionsList.appendChild(li);
+            });
+            suggestionsList.style.display = 'block';
+          } else {
+            suggestionsList.style.display = 'none';
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching suggestions:', error);
+          suggestionsList.style.display = 'none';
+        });
+    });
+
+    // Arama butonuna tıklanınca arama sonuçlarını güncelle
+    searchButton.addEventListener('click', function() {
+      const term = searchInput.value.trim();
+      if(term.length === 0) return;
+      
+      fetch('ProjectSearchResultsServlet?term=' + encodeURIComponent(term))
+        .then(response => response.json())
+        .then(data => {
+          // Gelen JSON (List<Project>) üzerinden HTML satırlarını oluşturup tabloyu güncelleyin.
+          projectsBody.innerHTML = '';
+          if(data.length > 0){
+            data.forEach(p => {
+              // Zaman bilgisini oluşturma
+              const zamanStr = p.uploadStartDate + " / " + p.uploadEndDate;
+              // Yeni satır oluşturma
+              const tr = document.createElement('tr');
+              tr.innerHTML = `
+                <td>${p.projectTopic}</td>
+                <td>${zamanStr}</td>
+                <td>${p.courseName}</td>
+                <td>${p.advisorName}</td>
+                <td><a href="${p.githubLink}" target="_blank">GitHub Link</a></td>
+                <td>
+                  <form action="ProjectDetailServlet" method="get" style="margin:0;">
+                    <input type="hidden" name="projectTopic" value="${p.projectTopic}">
+                    <button type="submit" class="btn btn-info">Detay Göster</button>
+                  </form>
+                </td>
+              `;
+              projectsBody.appendChild(tr);
+            });
+          } else {
+            projectsBody.innerHTML = '<tr><td colspan="7">Kayıt bulunamadı!</td></tr>';
+          }
+        })
+        .catch(error => console.error('Error fetching search results:', error));
+    });
+
+    // Dil değiştirme fonksiyonu (mevcut kodunuz)
     document.addEventListener('DOMContentLoaded', () => {
-        // Eğer localStorage'da dil seçimi varsa onu al, yoksa varsayılan olarak "en" kullan.
         const savedLanguage = localStorage.getItem('language') || 'en';
         changeLanguage(savedLanguage);
     });
     
     function changeLanguage(lang) {
         document.querySelectorAll('[data-lang]').forEach(element => {
-            if (element.getAttribute('data-lang') === lang) {
-                element.style.display = 'block';
-            } else {
-                element.style.display = 'none';
-            }
+            element.style.display = (element.getAttribute('data-lang') === lang) ? 'block' : 'none';
         });
     }
   </script>
