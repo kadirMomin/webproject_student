@@ -1,13 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" import="java.util.*, project.Project, project.ProjectDAO" %>
 <%
-    // Kullanıcının oturum açıp açmadığını kontrol ediyoruz.
     String user = (String) session.getAttribute("user");
     if (user == null) {
         response.sendRedirect("index2.jsp?error=loginfirst&return=project.jsp");
         return;
     }
     
-    // Sayfa ilk açıldığında tüm projeleri getiriyoruz.
     List<Project> projectList = (List<Project>) request.getAttribute("projectList");
     if (projectList == null) {
         projectList = new ProjectDAO().getAllProjects();
@@ -62,7 +60,6 @@
       background-color: #95c11e;
       color: #000;
     }
-    /* Arama kutusu ve öneri listesi için ek CSS */
     #search-bar {
       display: flex;
       align-items: center;
@@ -91,7 +88,6 @@
     #search-button:hover {
       background-color: #0056b3;
     }
-    /* Öneri listesi stili */
     #suggestions {
       position: absolute;
       top: 40px;
@@ -112,7 +108,6 @@
     #suggestions li:hover {
       background-color: #f2f2f2;
     }
-    /* Container: sol tarafa hizalanmış */
     #getting-started-container {
       max-width: 1200px;
       margin: 20px 0;
@@ -178,7 +173,7 @@
     <nav>
       <div id="search-bar">
         <input type="text" id="search-input" placeholder="Search projects...">
-        <button id="search-button">Search</button>
+        <button id="search-button" type="button">Search</button>
         <ul id="suggestions"></ul>
       </div>
       <a href="insert.jsp">HOME</a>
@@ -189,7 +184,6 @@
     </nav>
   </header>
   
-  <!-- Proje listesi bölümü -->
   <div id="getting-started-container">
     <table id="projects-table">
       <thead>
@@ -227,84 +221,91 @@
     <p>&copy; 2025 Your Platform Name. All rights reserved.</p>
   </footer>
       
-  <!-- JavaScript: Arama kutusu için AJAX ile öneri getirme ve arama sonuçlarını güncelleme -->
   <script>
     const searchInput = document.getElementById('search-input');
     const suggestionsList = document.getElementById('suggestions');
     const searchButton = document.getElementById('search-button');
     const projectsBody = document.getElementById('projects-body');
 
-    // Öneri getirme (input değişiminde)
-    searchInput.addEventListener('input', function() {
-      const term = searchInput.value.trim();
-      if(term.length === 0){
-          suggestionsList.style.display = 'none';
-          return;
-      }
-      fetch('ProjectSearchServlet?term=' + encodeURIComponent(term))
+   searchButton.addEventListener('click', function() {
+    const term = searchInput.value.trim();
+    if(term.length === 0) return;
+    
+    fetch('ProjectSearchResultsServlet?term=' + encodeURIComponent(term))
         .then(response => response.json())
         .then(data => {
-          suggestionsList.innerHTML = '';
-          if(data.length > 0){
-            data.forEach(item => {
-              const li = document.createElement('li');
-              li.textContent = item;
-              li.addEventListener('click', () => {
-                searchInput.value = item;
-                suggestionsList.style.display = 'none';
-              });
-              suggestionsList.appendChild(li);
-            });
-            suggestionsList.style.display = 'block';
-          } else {
-            suggestionsList.style.display = 'none';
-          }
+            projectsBody.innerHTML = '';
+            if(data.length > 0){
+                data.forEach(p => {
+                    // JSON'dan gelen verilerin kontrolü
+                    console.log("Gelen veri:", p); // DEBUG için
+                    
+                    const zamanStr = p.uploadStartDate + " / " + p.uploadEndDate;
+                    
+                    // TR elementi oluştur
+                    const tr = document.createElement('tr');
+                    
+                    // TD'leri tek tek oluştur
+                    const td1 = document.createElement('td');
+                    td1.textContent = p.projectTopic || '';
+                    
+                    const td2 = document.createElement('td');
+                    td2.textContent = zamanStr || '';
+                    
+                    const td3 = document.createElement('td');
+                    td3.textContent = p.courseName || '';
+                    
+                    const td4 = document.createElement('td');
+                    td4.textContent = p.advisorName || '';
+                    
+                    const td5 = document.createElement('td');
+                    const link = document.createElement('a');
+                    link.href = p.githubLink || '#';
+                    link.target = '_blank';
+                    link.textContent = 'GitHub Link';
+                    td5.appendChild(link);
+                    
+                    const td6 = document.createElement('td');
+                    const form = document.createElement('form');
+                    form.action = 'ProjectDetailServlet';
+                    form.method = 'get';
+                    form.style.margin = '0';
+                    
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'projectTopic';
+                    input.value = p.projectTopic || '';
+                    
+                    const button = document.createElement('button');
+                    button.type = 'submit';
+                    button.className = 'btn btn-info';
+                    button.textContent = 'Detay Göster';
+                    
+                    form.appendChild(input);
+                    form.appendChild(button);
+                    td6.appendChild(form);
+                    
+                    // Tüm TD'leri TR'ye ekle
+                    tr.appendChild(td1);
+                    tr.appendChild(td2);
+                    tr.appendChild(td3);
+                    tr.appendChild(td4);
+                    tr.appendChild(td5);
+                    tr.appendChild(td6);
+                    
+                    // TR'yi tabloya ekle
+                    projectsBody.appendChild(tr);
+                });
+            } else {
+                projectsBody.innerHTML = '<tr><td colspan="6">Kayıt bulunamadı!</td></tr>';
+            }
         })
         .catch(error => {
-          console.error('Error fetching suggestions:', error);
-          suggestionsList.style.display = 'none';
+            console.error('Error:', error);
+            projectsBody.innerHTML = '<tr><td colspan="6">Hata oluştu!</td></tr>';
         });
-    });
+});
 
-    // Arama butonuna tıklanınca arama sonuçlarını güncelle
-    searchButton.addEventListener('click', function() {
-      const term = searchInput.value.trim();
-      if(term.length === 0) return;
-      
-      fetch('ProjectSearchResultsServlet?term=' + encodeURIComponent(term))
-        .then(response => response.json())
-        .then(data => {
-          // Gelen JSON (List<Project>) üzerinden HTML satırlarını oluşturup tabloyu güncelleyin.
-          projectsBody.innerHTML = '';
-          if(data.length > 0){
-            data.forEach(p => {
-              // Zaman bilgisini oluşturma
-              const zamanStr = p.uploadStartDate + " / " + p.uploadEndDate;
-              // Yeni satır oluşturma
-              const tr = document.createElement('tr');
-              tr.innerHTML = `
-                <td>${p.projectTopic}</td>
-                <td>${zamanStr}</td>
-                <td>${p.courseName}</td>
-                <td>${p.advisorName}</td>
-                <td><a href="${p.githubLink}" target="_blank">GitHub Link</a></td>
-                <td>
-                  <form action="ProjectDetailServlet" method="get" style="margin:0;">
-                    <input type="hidden" name="projectTopic" value="${p.projectTopic}">
-                    <button type="submit" class="btn btn-info">Detay Göster</button>
-                  </form>
-                </td>
-              `;
-              projectsBody.appendChild(tr);
-            });
-          } else {
-            projectsBody.innerHTML = '<tr><td colspan="7">Kayıt bulunamadı!</td></tr>';
-          }
-        })
-        .catch(error => console.error('Error fetching search results:', error));
-    });
-
-    // Dil değiştirme fonksiyonu (mevcut kodunuz)
     document.addEventListener('DOMContentLoaded', () => {
         const savedLanguage = localStorage.getItem('language') || 'en';
         changeLanguage(savedLanguage);
