@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %> 
 <%
     // Kullanıcının oturum açıp açmadığını kontrol ediyoruz.
     String user = (String) session.getAttribute("user");
@@ -76,7 +76,8 @@
                 color: #333;
             }
             form input,
-            form textarea {
+            form textarea,
+            form select {
                 width: 100%;
                 padding: 12px;
                 margin-bottom: 20px;
@@ -129,27 +130,58 @@
                 <!-- Proje Konusu -->
                 <label for="projectTopic">Proje Konusu:</label>
                 <input type="text" id="projectTopic" name="projectTopic" required>
-                <!-- Yüklenen Zamanı: Başlangıç Tarihi -->
+                
+                <!-- Yükleme Başlangıç Tarihi -->
                 <label for="uploadStartDate">Yükleme Başlangıç Tarihi:</label>
                 <input type="date" id="uploadStartDate" name="uploadStartDate" required placeholder="yyyy-MM-dd" />
-                <!-- Yüklenen Zamanı: Bitiş Tarihi -->
+                
+                <!-- Yükleme Bitiş Tarihi -->
                 <label for="uploadEndDate">Yükleme Bitiş Tarihi:</label>
                 <input type="date" id="uploadEndDate" name="uploadEndDate" required placeholder="yyyy-MM-dd" />
+                
                 <!-- Ders Adı -->
                 <label for="courseName">Ders Adı:</label>
                 <input type="text" id="courseName" name="courseName" required>
+                
                 <!-- Danışman Adı -->
                 <label for="advisorName">Danışman Adı:</label>
                 <input type="text" id="advisorName" name="advisorName" required>
+                
                 <!-- GitHub Link -->
                 <label for="githubLink">GitHub Link:</label>
                 <input type="text" id="githubLink" name="githubLink" required>
+                
+                <!-- Kütüphane Linki -->
+                <label for="libraryLink">Kütüphane Linki:</label>
+                <input type="text" id="libraryLink" name="libraryLink" required>
+                
+                <!-- Proje Publish Edildi mi? -->
+                <label for="projectPublished">Proje Publish Edildi mi?</label>
+                <select id="projectPublished" name="projectPublished" required>
+                    <option value="" selected disabled>Seçiniz</option>
+                    <option value="yes">Evet</option>
+                    <option value="no">Hayır</option>
+                </select>
+                
+                <!-- Projenin Aldığı Ödüller -->
+                <label for="projectAwards">Projenin Aldığı Ödüller (1-5):</label>
+                <select id="projectAwards" name="projectAwards" required>
+                    <option value="" selected disabled>Seçiniz</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+                
                 <!-- Proje Açıklaması -->
                 <label for="projectDescription">Proje Açıklaması:</label>
-                <textarea id="projectDescription" name="projectDescription" rows="5" required></textarea> -->
+                <textarea id="projectDescription" name="projectDescription" rows="5" required></textarea> 
+                
                 <!-- Proje Resmi -->
                 <label for="projectImage">Proje Resmi:</label>
                 <input type="file" id="projectImage" name="projectImage" accept="image/*" required> 
+                
                 <button type="submit">Upload</button>
             </form>
         </div>

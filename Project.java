@@ -9,25 +9,34 @@ public class Project {
     private String courseName;
     private String advisorName;
     private String githubLink;
+    private String libraryLink;      // Yeni alan: Kütüphane Linki
     private String projectDescription;
-    private String projectImage; // Dosya adı veya yolu
+    private String projectImage;     // Dosya adı veya yolu
+
+    // Yeni eklenen alanlar
+    private String projectPublished; // "yes" veya "no"
+    private String projectAwards;    // "1" ile "5" arası değer
 
     // Parametresiz Constructor
     public Project() {
     }
 
-    // Parametreli Constructor
+    // Parametreli Constructor (Yeni alanlar eklendi)
     public Project(String projectTopic, Date uploadStartDate, Date uploadEndDate, 
-                   String courseName, String advisorName, String githubLink,
-                   String projectDescription, String projectImage) {
+                   String courseName, String advisorName, String githubLink, String libraryLink,
+                   String projectDescription, String projectImage,
+                   String projectPublished, String projectAwards) {
         this.projectTopic = projectTopic;
         this.uploadStartDate = uploadStartDate;
         this.uploadEndDate = uploadEndDate;
         this.courseName = courseName;
         this.advisorName = advisorName;
         this.githubLink = githubLink;
+        this.libraryLink = libraryLink;
         this.projectDescription = projectDescription;
         this.projectImage = projectImage;
+        this.projectPublished = projectPublished;
+        this.projectAwards = projectAwards;
     }
 
     // Getter ve Setter metodları
@@ -79,6 +88,14 @@ public class Project {
         this.githubLink = githubLink;
     }
 
+    public String getLibraryLink() {
+        return libraryLink;
+    }
+
+    public void setLibraryLink(String libraryLink) {
+        this.libraryLink = libraryLink;
+    }
+
     public String getProjectDescription() {
         return projectDescription;
     }
@@ -93,5 +110,21 @@ public class Project {
 
     public void setProjectImage(String projectImage) {
         this.projectImage = projectImage;
+    }
+    
+    public String getProjectPublished() {
+        return projectPublished;
+    }
+
+    public void setProjectPublished(String projectPublished) {
+        this.projectPublished = projectPublished;
+    }
+
+    public String getProjectAwards() {
+        return projectAwards;
+    }
+
+    public void setProjectAwards(String projectAwards) {
+        this.projectAwards = projectAwards;
     }
 }

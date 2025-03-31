@@ -18,6 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Getting Started - Your Platform Name</title>
   <style>
+    /* DEĞİŞMEYEN TÜM CSS KURALLARI AYNEN KALIYOR */
     body {
       font-family: Arial, sans-serif;
       background-color: #f2f2f2;
@@ -108,33 +109,42 @@
     #suggestions li:hover {
       background-color: #f2f2f2;
     }
+    
+    /* SADECE ŞU KISIMLARI DEĞİŞTİRİYORUZ */
     #getting-started-container {
-      max-width: 1200px;
-      margin: 20px 0;
-      padding: 20px;
+      max-width: 95%; /* Ekranın %95'ini kullan (daha dar) */
+      margin: 20px auto; /* Otomatik merkezleme */
+      padding: 15px;
       background-color: #fff;
       border-radius: 6px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      text-align: left;
+      overflow-x: auto; /* Yatay kaydırma eklendi */
     }
+    
     #getting-started-container table {
       width: 100%;
-      margin: 20px 0;
+      margin: 10px 0;
       border-collapse: collapse;
-      background-color: transparent;
+      table-layout: auto; /* Hücreler içeriğe göre genişlesin */
     }
+    
     #getting-started-container th,
     #getting-started-container td {
       background-color: #fff;
-      border: 1px solid black;
-      padding: 25px;
+      border: 1px solid #ddd; /* Daha hafif bir border */
+      padding: 10px 12px; /* Padding'i biraz azalttık */
       text-align: left;
-      min-width: 150px;
+      min-width: 80px; /* Minimum genişlik azaltıldı */
     }
+    
     #getting-started-container th {
       background-color: #4caf50;
       color: white;
+      position: sticky;
+      top: 0;
     }
+    
+    /* Kalan CSS kuralları aynen kalıyor */
     .btn {
       padding: 5px 10px;
       border-radius: 5px;
@@ -167,6 +177,7 @@
   </style>
 </head>
 <body>
+  <!-- HEADER VE NAV KISMI TAMAMEN AYNI -->
   <header>
     <img id="logo" src="1.png" alt="Logo">
     <h1>Getting Started</h1>
@@ -184,6 +195,7 @@
     </nav>
   </header>
   
+  <!-- TABLO KISMI (HTML YAPISI AYNI) -->
   <div id="getting-started-container">
     <table id="projects-table">
       <thead>
@@ -193,6 +205,9 @@
           <th>Ders Adı</th>
           <th>Danışman Adı</th>
           <th>GitHub Link</th>
+          <th>Kütüphane Linki</th>
+          <th>Publish Durumu</th>
+          <th>Ödül Sayısı (1-5)</th>
           <th>İşlemler</th>
         </tr>
       </thead>
@@ -205,6 +220,9 @@
           <td><%= p.getCourseName() %></td>
           <td><%= p.getAdvisorName() %></td>
           <td><a href="<%= p.getGithubLink() %>" target="_blank">GitHub Link</a></td>
+          <td><a href="<%= p.getLibraryLink() %>" target="_blank"><%= p.getLibraryLink() %></a></td>
+          <td><%= p.getProjectPublished().equalsIgnoreCase("yes") ? "Evet" : "Hayır" %></td>
+          <td><%= p.getProjectAwards() %></td>
           <td>
             <form action="ProjectDetailServlet" method="get" style="margin:0;">
               <input type="hidden" name="projectTopic" value="<%= p.getProjectTopic() %>">
@@ -221,100 +239,96 @@
     <p>&copy; 2025 Your Platform Name. All rights reserved.</p>
   </footer>
       
+  <!-- JAVASCRIPT KODU TAMAMEN AYNI KALIYOR -->
   <script>
     const searchInput = document.getElementById('search-input');
     const suggestionsList = document.getElementById('suggestions');
     const searchButton = document.getElementById('search-button');
     const projectsBody = document.getElementById('projects-body');
 
-   searchButton.addEventListener('click', function() {
-    const term = searchInput.value.trim();
-    if(term.length === 0) return;
-    
-    fetch('ProjectSearchResultsServlet?term=' + encodeURIComponent(term))
-        .then(response => response.json())
-        .then(data => {
-            projectsBody.innerHTML = '';
-            if(data.length > 0){
-                data.forEach(p => {
-                    // JSON'dan gelen verilerin kontrolü
-                    console.log("Gelen veri:", p); // DEBUG için
-                    
-                    const zamanStr = p.uploadStartDate + " / " + p.uploadEndDate;
-                    
-                    // TR elementi oluştur
-                    const tr = document.createElement('tr');
-                    
-                    // TD'leri tek tek oluştur
-                    const td1 = document.createElement('td');
-                    td1.textContent = p.projectTopic || '';
-                    
-                    const td2 = document.createElement('td');
-                    td2.textContent = zamanStr || '';
-                    
-                    const td3 = document.createElement('td');
-                    td3.textContent = p.courseName || '';
-                    
-                    const td4 = document.createElement('td');
-                    td4.textContent = p.advisorName || '';
-                    
-                    const td5 = document.createElement('td');
-                    const link = document.createElement('a');
-                    link.href = p.githubLink || '#';
-                    link.target = '_blank';
-                    link.textContent = 'GitHub Link';
-                    td5.appendChild(link);
-                    
-                    const td6 = document.createElement('td');
-                    const form = document.createElement('form');
-                    form.action = 'ProjectDetailServlet';
-                    form.method = 'get';
-                    form.style.margin = '0';
-                    
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = 'projectTopic';
-                    input.value = p.projectTopic || '';
-                    
-                    const button = document.createElement('button');
-                    button.type = 'submit';
-                    button.className = 'btn btn-info';
-                    button.textContent = 'Detay Göster';
-                    
-                    form.appendChild(input);
-                    form.appendChild(button);
-                    td6.appendChild(form);
-                    
-                    // Tüm TD'leri TR'ye ekle
-                    tr.appendChild(td1);
-                    tr.appendChild(td2);
-                    tr.appendChild(td3);
-                    tr.appendChild(td4);
-                    tr.appendChild(td5);
-                    tr.appendChild(td6);
-                    
-                    // TR'yi tabloya ekle
-                    projectsBody.appendChild(tr);
-                });
-            } else {
-                projectsBody.innerHTML = '<tr><td colspan="6">Kayıt bulunamadı!</td></tr>';
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            projectsBody.innerHTML = '<tr><td colspan="6">Hata oluştu!</td></tr>';
-        });
-});
+    searchButton.addEventListener('click', function() {
+      const term = searchInput.value.trim();
+      if(term.length === 0) return;
+      
+      fetch('ProjectSearchResultsServlet?term=' + encodeURIComponent(term))
+          .then(response => response.json())
+          .then(data => {
+              projectsBody.innerHTML = '';
+              if(data.length > 0){
+                  data.forEach(p => {
+                      console.log("Gelen veri:", p);
+                      const zamanStr = p.uploadStartDate + " / " + p.uploadEndDate;
+                      const tr = document.createElement('tr');
+                      const td1 = document.createElement('td');
+                      td1.textContent = p.projectTopic || '';
+                      const td2 = document.createElement('td');
+                      td2.textContent = zamanStr || '';
+                      const td3 = document.createElement('td');
+                      td3.textContent = p.courseName || '';
+                      const td4 = document.createElement('td');
+                      td4.textContent = p.advisorName || '';
+                      const td5 = document.createElement('td');
+                      const link = document.createElement('a');
+                      link.href = p.githubLink || '#';
+                      link.target = '_blank';
+                      link.textContent = 'GitHub Link';
+                      td5.appendChild(link);
+                      const td6 = document.createElement('td');
+                      const libLink = document.createElement('a');
+                      libLink.href = p.libraryLink || '#';
+                      libLink.target = '_blank';
+                      libLink.textContent = p.libraryLink || '';
+                      td6.appendChild(libLink);
+                      const td7 = document.createElement('td');
+                      td7.textContent = (p.projectPublished && p.projectPublished.toLowerCase() === "yes") ? "Evet" : "Hayır";
+                      const td8 = document.createElement('td');
+                      td8.textContent = p.projectAwards || '';
+                      const td9 = document.createElement('td');
+                      const form = document.createElement('form');
+                      form.action = 'ProjectDetailServlet';
+                      form.method = 'get';
+                      form.style.margin = '0';
+                      const input = document.createElement('input');
+                      input.type = 'hidden';
+                      input.name = 'projectTopic';
+                      input.value = p.projectTopic || '';
+                      const button = document.createElement('button');
+                      button.type = 'submit';
+                      button.className = 'btn btn-info';
+                      button.textContent = 'Detay Göster';
+                      form.appendChild(input);
+                      form.appendChild(button);
+                      td9.appendChild(form);
+                      tr.appendChild(td1);
+                      tr.appendChild(td2);
+                      tr.appendChild(td3);
+                      tr.appendChild(td4);
+                      tr.appendChild(td5);
+                      tr.appendChild(td6);
+                      tr.appendChild(td7);
+                      tr.appendChild(td8);
+                      tr.appendChild(td9);
+                      projectsBody.appendChild(tr);
+                  });
+              } else {
+                  projectsBody.innerHTML = '<tr><td colspan="9">Kayıt bulunamadı!</td></tr>';
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+              projectsBody.innerHTML = '<tr><td colspan="9">Hata oluştu!</td></tr>';
+          });
+    });
 
     document.addEventListener('DOMContentLoaded', () => {
-        const savedLanguage = localStorage.getItem('language') || 'en';
-        changeLanguage(savedLanguage);
+      const savedLanguage = localStorage.getItem('language') || 'en';
+      changeLanguage(savedLanguage);
     });
     
     function changeLanguage(lang) {
-        document.querySelectorAll('[data-lang]').forEach(element => {
-            element.style.display = (element.getAttribute('data-lang') === lang) ? 'block' : 'none';
-        });
+      document.querySelectorAll('[data-lang]').forEach(element => {
+          element.style.display = (element.getAttribute('data-lang') === lang) ? 'block' : 'none';
+      });
     }
   </script>
 </body>

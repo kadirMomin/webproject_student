@@ -17,29 +17,30 @@ import jakarta.servlet.http.Part;
 @MultipartConfig
 public class ProjectServlet extends HttpServlet {
 
-    // Dosyaların kaydedileceği klasör (uygulamanın context dizininde "uploads" klasörü oluşturulacak)
     private static final String UPLOAD_DIR = "uploads";
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Karakter kodlamasını ayarla
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
 
-        // --- Proje ekleme işlemi ---
-        // Multipart formdaki text alanlarını getPart() ile okuyalım.
+        // Metin alanlarını oku:
         String projectTopic = readFormField(request.getPart("projectTopic"));
         String courseName = readFormField(request.getPart("courseName"));
         String advisorName = readFormField(request.getPart("advisorName"));
         String githubLink = readFormField(request.getPart("githubLink"));
+        String libraryLink = readFormField(request.getPart("libraryLink")); // Yeni: Kütüphane Linki
         String projectDescription = readFormField(request.getPart("projectDescription"));
+        
+        // Yeni eklenen alanlar:
+        String projectPublished = readFormField(request.getPart("projectPublished"));
+        String projectAwards = readFormField(request.getPart("projectAwards"));
 
-        // Tarih alanları: form <input type="date"> kullanıyor; veriler "yyyy-MM-dd" formatında gönderilir.
+        // Tarih alanları
         String startDateStr = readFormField(request.getPart("uploadStartDate"));
         String endDateStr = readFormField(request.getPart("uploadEndDate"));
 
-        // Null kontrolü
         if (projectTopic == null || projectTopic.trim().isEmpty()) {
             throw new ServletException("Proje konusu boş bırakılamaz!");
         }
@@ -50,7 +51,6 @@ public class ProjectServlet extends HttpServlet {
             throw new ServletException("Yükleme Bitiş Tarihi boş bırakılamaz!");
         }
 
-        // Tarih dönüşümü: java.sql.Date.valueOf() kullanarak
         java.sql.Date uploadStartDate;
         java.sql.Date uploadEndDate;
         try {
@@ -60,43 +60,38 @@ public class ProjectServlet extends HttpServlet {
             throw new ServletException("Tarih formatı hatalı: " + e.getMessage());
         }
 
-        // Proje resmini (image) işleyelim:
+        // Proje resmini işleme
         Part imagePart = request.getPart("projectImage");
         String fileName = extractFileName(imagePart);
-        // Uygulama dizininden uploads klasörünün yolunu alalım
         String applicationPath = request.getServletContext().getRealPath("");
         String uploadPath = applicationPath + File.separator + UPLOAD_DIR;
         File uploadDir = new File(uploadPath);
         if (!uploadDir.exists()) {
             uploadDir.mkdirs();
         }
-        // Dosyayı uploads klasörüne kaydedelim
         imagePart.write(uploadPath + File.separator + fileName);
         String projectImage = fileName;
 
-        // Project nesnesini oluşturun (tüm alanları içerecek şekilde)
+        // Project nesnesini, yeni alanlar dahil olacak şekilde oluşturun.
         Project project = new Project(projectTopic, uploadStartDate, uploadEndDate,
-                courseName, advisorName, githubLink, projectDescription, projectImage);
+                courseName, advisorName, githubLink, libraryLink, projectDescription, projectImage,
+                projectPublished, projectAwards);
 
-        // DAO aracılığıyla veritabanına ekleme yapın
+        // Veritabanına ekleme
         ProjectDAO dao = new ProjectDAO();
         boolean inserted = dao.insertProject(project);
         if (!inserted) {
-            // Duplicate durumunda hata mesajını set edip kullanıcıyı upload.jsp'ye yönlendiriyoruz.
             request.setAttribute("errorMessage", "Aynı proje konusu, başlangıç ve bitiş tarihleri ile kayıt mevcut. Lütfen farklı tarih veya proje konusu giriniz.");
             request.getRequestDispatcher("upload.jsp").forward(request, response);
             return;
         }
 
-        // --- Proje Listeleme İşlemi ---
-        // Kayıt eklenmiş olsun veya olmasın, güncel listeyi çekelim
+        // Proje listesini güncelle
         List<Project> projectList = dao.getAllProjects();
         request.setAttribute("projectList", projectList);
-        // Listeleme sayfası olarak project.jsp'ye yönlendiriyoruz.
         request.getRequestDispatcher("project.jsp").forward(request, response);
     }
 
-    // Yardımcı metot: Bir Part'tan metin değeri okur.
     private String readFormField(Part part) throws IOException {
         if (part == null) {
             return null;
@@ -110,7 +105,6 @@ public class ProjectServlet extends HttpServlet {
         return value.toString();
     }
 
-    // Yardımcı metot: Part içinden dosya adını çıkarır.
     private String extractFileName(Part part) {
         String contentDisp = part.getHeader("content-disposition");
         String[] items = contentDisp.split(";");
