@@ -5,11 +5,12 @@
         response.sendRedirect("index2.jsp?error=loginfirst&return=project.jsp");
         return;
     }
-    
+    ProjectDAO projectDAO = new ProjectDAO();
     List<Project> projectList = (List<Project>) request.getAttribute("projectList");
     if (projectList == null) {
-        projectList = new ProjectDAO().getAllProjects();
+        projectList = projectDAO.getAllProjects();
     }
+    int totalProjects = projectDAO.getTotalProjectCount();
 %>
 <!DOCTYPE html> 
 <html lang="en">
@@ -110,6 +111,42 @@
       background-color: #f2f2f2;
     }
     
+    /* Dropdown CSS (Sadece Projects linki için eklenmiştir) */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+    .dropbtn {
+      color: #fff;
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0;
+    }
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #343a40;
+      min-width: 160px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      z-index: 9999;
+    }
+    .dropdown-content a {
+      color: #fff;
+      padding: 8px 12px;
+      text-decoration: none;
+      display: block;
+      transition: background-color 0.3s;
+    }
+    .dropdown-content a:hover {
+      background-color: #95c11e;
+      color: #000;
+    }
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+    
     /* SADECE ŞU KISIMLARI DEĞİŞTİRİYORUZ */
     #getting-started-container {
       max-width: 95%; /* Ekranın %95'ini kullan (daha dar) */
@@ -174,10 +211,21 @@
       width: 100%;
       color: #fff;
     }
+    
+    /* Yeni eklenen proje sayısı stili */
+    .project-count {
+      background-color: #4caf50;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      display: inline-block;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
-  <!-- HEADER VE NAV KISMI TAMAMEN AYNI -->
+  <!-- HEADER VE NAVIGATION -->
   <header>
     <img id="logo" src="1.png" alt="Logo">
     <h1>Getting Started</h1>
@@ -188,16 +236,26 @@
         <ul id="suggestions"></ul>
       </div>
       <a href="insert.jsp">HOME</a>
-      <a href="project.jsp">Projects</a>
+      <!-- Projects dropdown -->
+      <div class="dropdown">
+        <a class="dropbtn">
+          <h4 data-lang="en">Projects</h4>
+          <h4 data-lang="tr" style="display: none;">Projeler</h4>
+        </a>
+        <div class="dropdown-content">
+          <a href="project.jsp">Project List</a>
+          <a href="report.jsp">Project Reports</a>
+        </div>
+      </div>
       <a href="upload.jsp">UPLOAD</a>
       <a href="FAQs.jsp">FAQs</a>
       <a href="index2.jsp">SIGN UP OR SIGN IN</a>
     </nav>
   </header>
   
-  <!-- TABLO KISMI (HTML YAPISI AYNI) -->
+  <!-- TABLO İÇERİĞİ -->
   <div id="getting-started-container">
-    <table id="projects-table">
+    <table id="projects-table"> 
       <thead>
         <tr>
           <th>Proje Konusu</th>
@@ -235,11 +293,22 @@
     </table>
   </div>
   
+  <div id="getting-started-container">
+    <!-- Proje sayısını gösteren yeni bölüm -->
+    <div class="project-count">
+      Toplam Proje Sayısı: <%= totalProjects %>
+    </div>
+    
+    <table id="projects-table">
+      <!-- Tablo içeriği aynı kalacak -->
+    </table>
+  </div>
+  
   <footer>
     <p>&copy; 2025 Your Platform Name. All rights reserved.</p>
   </footer>
       
-  <!-- JAVASCRIPT KODU TAMAMEN AYNI KALIYOR -->
+  <!-- JAVASCRIPT (Search, Dropdown vs. aynı kalacak) -->
   <script>
     const searchInput = document.getElementById('search-input');
     const suggestionsList = document.getElementById('suggestions');
@@ -256,7 +325,6 @@
               projectsBody.innerHTML = '';
               if(data.length > 0){
                   data.forEach(p => {
-                      console.log("Gelen veri:", p);
                       const zamanStr = p.uploadStartDate + " / " + p.uploadEndDate;
                       const tr = document.createElement('tr');
                       const td1 = document.createElement('td');
@@ -311,12 +379,12 @@
                       projectsBody.appendChild(tr);
                   });
               } else {
-                  projectsBody.innerHTML = '<tr><td colspan="9">Kayıt bulunamadı!</td></tr>';
+                  projectsBody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Kayıt bulunamadı!</td></tr>';
               }
           })
           .catch(error => {
               console.error('Error:', error);
-              projectsBody.innerHTML = '<tr><td colspan="9">Hata oluştu!</td></tr>';
+              projectsBody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:red;">Hata oluştu!</td></tr>';
           });
     });
 

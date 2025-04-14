@@ -6,7 +6,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ProjectDAO {
 
@@ -208,6 +210,93 @@ public List<String> getSimilarProjectTopics(String term) {
     return topics;
 }
 
+    public int getTotalProjectCount() {
+    String sql = "SELECT COUNT(*) AS total FROM uploadfile";
+    try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+         PreparedStatement stmt = conn.prepareStatement(sql);
+         ResultSet rs = stmt.executeQuery()) {
+        
+        if (rs.next()) {
+            return rs.getInt("total");
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return 0;
+}
     
+    public Map<String, Integer> getProjectCountByStatus() {
+    Map<String, Integer> result = new LinkedHashMap<>();
+    String sql = "SELECT projectPublished, COUNT(*) as count FROM uploadfile GROUP BY projectPublished";
+    
+    try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+         PreparedStatement stmt = conn.prepareStatement(sql);
+         ResultSet rs = stmt.executeQuery()) {
+        
+        while (rs.next()) {
+            String status = rs.getString("projectPublished");
+            int count = rs.getInt("count");
+            result.put(status, count);
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return result;
+}
+
+public Map<String, Integer> getProjectCountByAdvisor() {
+    Map<String, Integer> result = new LinkedHashMap<>();
+    String sql = "SELECT advisorName, COUNT(*) as count FROM uploadfile GROUP BY advisorName ORDER BY count DESC";
+    
+    try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+         PreparedStatement stmt = conn.prepareStatement(sql);
+         ResultSet rs = stmt.executeQuery()) {
+        
+        while (rs.next()) {
+            String advisor = rs.getString("advisorName");
+            int count = rs.getInt("count");
+            result.put(advisor, count);
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return result;
+}
+
+// Yeni metod: En son eklenen projeleri döndürür.
+    public List<Project> getRecentProjects(int limit) {
+        List<Project> projects = new ArrayList<>();
+        String sql = "SELECT projectTopic, uploadStartDate, uploadEndDate, courseName, advisorName, githubLink, libraryLink, projectDescription, projectImage, projectPublished, projectAwards "
+                   + "FROM uploadfile ORDER BY uploadStartDate DESC LIMIT ?";
+        
+        try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, limit);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String topic = rs.getString("projectTopic");
+                    java.sql.Date uploadStartDate = rs.getDate("uploadStartDate");
+                    java.sql.Date uploadEndDate = rs.getDate("uploadEndDate");
+                    String courseName = rs.getString("courseName");
+                    String advisorName = rs.getString("advisorName");
+                    String githubLink = rs.getString("githubLink");
+                    String libraryLink = rs.getString("libraryLink");
+                    String projectDescription = rs.getString("projectDescription");
+                    String projectImage = rs.getString("projectImage");
+                    String projectPublished = rs.getString("projectPublished");
+                    String projectAwards = rs.getString("projectAwards");
+                    
+                    Project project = new Project(topic, uploadStartDate, uploadEndDate, 
+                                                  courseName, advisorName, githubLink, libraryLink, 
+                                                  projectDescription, projectImage, projectPublished, projectAwards);
+                    projects.add(project);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return projects;
+    }
     
 }

@@ -1,29 +1,56 @@
-<%-- 
-    Document   : insert
-    Created on : Feb 21, 2025, 2:26:00 PM
-    Author     : hp
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>JSP Page</title>
-         <link
-      rel="shortcut icon"
-      href="https://sidcupfamilygolf.com/wp-content/themes/puttosaurus/favicons/favicon-32x32.png"
-      type="image/x-icon"
-    />
-    <link
-      href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="style.css" />
+         <link rel="shortcut icon" href="https://sidcupfamilygolf.com/wp-content/themes/puttosaurus/favicons/favicon-32x32.png" type="image/x-icon" />
+         <link href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css" rel="stylesheet" />
+         <link rel="stylesheet" href="style.css" />
+         <style>
+            /* Mevcut stil kodlarınız burada yer alıyorsa, onları koruyun; 
+               aşağıda sadece ek dropdown CSS kuralları eklenmiştir. */
+               
+            /* Dropdown için CSS */
+            .dropdown {
+              position: relative;
+              display: inline-block;
+            }
+            .dropbtn {
+              color: #fff;
+              background-color: transparent;
+              border: none;
+              cursor: pointer;
+              font-size: 16px;
+              padding: 0;
+            }
+            .dropdown-content {
+              display: none;
+              position: absolute;
+              background-color: #343a40;
+              min-width: 160px;
+              box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+              z-index: 9999;
+            }
+            .dropdown-content a {
+              color: #fff;
+              padding: 8px 12px;
+              text-decoration: none;
+              display: block;
+              transition: background-color 0.3s;
+            }
+            .dropdown-content a:hover {
+              background-color: #95c11e;
+              color: #000;
+            }
+            .dropdown:hover .dropdown-content {
+              display: block;
+            }
+         </style>
     </head>
     <body>
+        
         <!-- Language Selector -->
-       <!-- Language Selector -->
         <div id="language-selector" style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
             <select id="language">
                 <option value="en">English</option>
@@ -38,7 +65,19 @@
                 <button id="search-button">Search</button>
             </div>
             <a href="insert.jsp"><h4 data-lang="en">HOME</h4><h4 data-lang="tr" style="display: none;">ANA SAYFA</h4></a>
-            <a href="project.jsp"><h4 data-lang="en">Projects</h4><h4 data-lang="tr" style="display: none;">Projeler</h4></a>
+            
+            <!-- Projects dropdown menü -->
+            <div class="dropdown">
+                <a class="dropbtn">
+                    <h4 data-lang="en">Projects</h4>
+                    <h4 data-lang="tr" style="display: none;">Projeler</h4>
+                </a>
+                <div class="dropdown-content">
+                    <a href="project.jsp">Project List</a>
+                    <a href="report.jsp">Project Reports</a>
+                </div>
+            </div>
+            
             <a href="upload.jsp"><h4 data-lang="en">UPLOAD</h4><h4 data-lang="tr" style="display: none;">YÜKLE</h4></a>
             <a href="FAQs.jsp"><h4 data-lang="en">FAQs</h4><h4 data-lang="tr" style="display: none;">SSS</h4></a>
             <a href="index2.jsp"><h4 data-lang="en">SIGN UP OR SIGN IN</h4><h4 data-lang="tr" style="display: none;">KAYIT OL / GİRİŞ YAP</h4></a>
@@ -124,7 +163,7 @@
                             <p data-lang="en">
                                 Inspire others with the innovative and creative work of your community. Share success stories and unique projects to motivate current and future students.
                             </p>
-                            <p data-lang="tr" style="display: none;">
+                            <p data-lang="tr" style="display: none;"> 
                                 Topluluğunuzun yenilikçi ve yaratıcı çalışmalarıyla başkalarına ilham verin. Başarı hikayelerini ve benzersiz projeleri paylaşarak mevcut ve gelecekteki öğrencileri motive edin.
                             </p>
                         </div>
@@ -218,7 +257,6 @@
                 </div>
             </div>
         </div>
-
         <script>
             // Sayfa yüklendiğinde localStorage'dan dil değerini oku ve uygulamayı başlat
             document.addEventListener('DOMContentLoaded', () => {
@@ -244,19 +282,8 @@
                 });
             }
         </script>
-
-        <script
-            src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.1/gsap.min.js"
-            integrity="sha512-qF6akR/fsZAB4Co1QDDnUXWnaQseLGXoniuSuSlPQK6+aWhlMZcHzkasCSlnWoe+TJuudlka1/IQ01Dnhgq95g=="
-            crossorigin="anonymous"
-            referrerpolicy="no-referrer"
-        ></script>
-        <script
-            src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.1/ScrollTrigger.min.js"
-            integrity="sha512-IHDCHrefnBT3vOCsvdkMvJF/MCPz/nBauQLzJkupa4Gn4tYg5a6VGyzIrjo6QAUy3We5HFOZUlkUpP0dkgE60A=="
-            crossorigin="anonymous"
-            referrerpolicy="no-referrer"
-        ></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.1/gsap.min.js" integrity="sha512-qF6akR/fsZAB4Co1QDDnUXWnaQseLGXoniuSuSlPQK6+aWhlMZcHzkasCSlnWoe+TJuudlka1/IQ01Dnhgq95g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.1/ScrollTrigger.min.js" integrity="sha512-IHDCHrefnBT3vOCsvdkMvJF/MCPz/nBauQLzJkupa4Gn4tYg5a6VGyzIrjo6QAUy3We5HFOZUlkUpP0dkgE60A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
         <script src="script.js"></script>
     </body>
 </html>

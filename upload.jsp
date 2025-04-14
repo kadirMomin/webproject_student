@@ -60,6 +60,41 @@
                 background-color: #95c11e;
                 color: #000;
             }
+            /* Dropdown CSS (sadece Projects için) */
+            .dropdown {
+                position: relative;
+                display: inline-block;
+            }
+            .dropbtn {
+                color: #fff;
+                background-color: transparent;
+                border: none;
+                cursor: pointer;
+                font-size: 16px;
+                padding: 0;
+            }
+            .dropdown-content {
+                display: none;
+                position: absolute;
+                background-color: #343a40;
+                min-width: 160px;
+                box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+                z-index: 9999;
+            }
+            .dropdown-content a {
+                color: #fff;
+                padding: 8px 12px;
+                text-decoration: none;
+                display: block;
+                transition: background-color 0.3s;
+            }
+            .dropdown-content a:hover {
+                background-color: #95c11e;
+                color: #000;
+            }
+            .dropdown:hover .dropdown-content {
+                display: block;
+            }
             /* Form Container */
             #upload-container {
                 max-width: 800px;
@@ -119,7 +154,17 @@
             <h1>Upload Project</h1>
             <nav>
                 <a href="insert.jsp">HOME</a>
-                <a href="project.jsp">Projects</a>
+                <!-- Projects dropdown -->
+                <div class="dropdown">
+                    <a class="dropbtn">
+                        <h4 data-lang="en">Projects</h4>
+                        <h4 data-lang="tr" style="display: none;">Projeler</h4>
+                    </a>
+                    <div class="dropdown-content">
+                        <a href="project.jsp">Project List</a>
+                        <a href="report.jsp">Project Reports</a>
+                    </div>
+                </div>
                 <a href="upload.jsp">UPLOAD</a>
                 <a href="FAQs.jsp">FAQs</a>
                 <a href="index2.jsp">SIGN UP OR SIGN IN</a>
