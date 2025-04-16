@@ -52,7 +52,7 @@
       flex: 1;
       text-align: center;
     }
-    /* Logo veya diğer öğeler (isteğe bağlı) */
+    /* Logo veya diğer öğeler */
     #logo {
       width: 150px;
       margin-right: 20px;
@@ -75,7 +75,7 @@
       background-color: #95c11e;
       color: #000;
     }
-    /* Dropdown CSS (sadece Projects için) */
+    /* Dropdown CSS (sadece Projects ve SIGN UP OR SIGN IN için) */
     .dropdown {
       position: relative;
       display: inline-block;
@@ -96,14 +96,19 @@
       box-shadow: 0 8px 16px rgba(0,0,0,0.2);
       z-index: 9999;
     }
-    .dropdown-content a {
+    /* Dropdown içeriğindeki bağlantıların ve h4 etiketlerinin yazı boyutu küçültüldü */
+    .dropdown-content a, 
+    .dropdown-content h4 {
       color: #fff;
       padding: 8px 12px;
       text-decoration: none;
       display: block;
       transition: background-color 0.3s;
+      margin: 0;
+      font-size: 14px; /* Küçültülmüş font boyutu */
     }
-    .dropdown-content a:hover {
+    .dropdown-content a:hover,
+    .dropdown-content h4:hover {
       background-color: #95c11e;
       color: #000;
     }
@@ -136,7 +141,7 @@
       height: auto;
     }
     
-    /* Stat Card (isteğe bağlı) */
+    /* Stat Card ve stat grid (isteğe bağlı) */
     .stat-card {
       background-color: #4caf50;
       color: white;
@@ -218,7 +223,17 @@
       </div>
       <a href="upload.jsp">UPLOAD</a>
       <a href="FAQs.jsp">FAQs</a>
-      <a href="index2.jsp">SIGN UP OR SIGN IN</a>
+      
+      <!-- SIGN UP OR SIGN IN dropdown: üzerine gelince LOGOUT görünsün -->
+      <div class="dropdown">
+        <a class="dropbtn">SIGN UP OR SIGN IN</a>
+        <div class="dropdown-content">
+          <a href="LogoutServlet">
+            <h4 data-lang="en">LOGOUT</h4>
+            <h4 data-lang="tr" style="display: none;">ÇIKIŞ</h4>
+          </a>
+        </div>
+      </div>
     </nav>
   </header>
   
@@ -280,16 +295,15 @@
     </table>
   </div>
   
-  <!-- FOOTER 
   <footer>
     <p>&copy; 2025 Your Platform Name. All rights reserved.</p>
-  </footer>-->
+  </footer>
       
   <!-- Chart.js Doughnut Grafik Kodları -->
   <script>
     // JSP'den gelen verileri JS değişkenlerine atıyoruz
-    const totalProjects   = <%= totalProjects %>;
-    const publishedCount  = <%= publishedCount %>;
+    const totalProjects    = <%= totalProjects %>;
+    const publishedCount   = <%= publishedCount %>;
     const unpublishedCount = <%= unpublishedCount %>;
     
     // Chart: Toplam Proje

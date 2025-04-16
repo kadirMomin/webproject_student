@@ -39,21 +39,41 @@ public class UserDAO {
         }
     }
     
-    // Kullanıcı giriş (sign in) metodu
-    public boolean signIn(String userName, String password) {
-        String sql = "SELECT * FROM loginandregister WHERE UserName = ? AND password = ?";
+    // Kullanıcı giriş (sign in) metodu - EMAIL ile kontrol
+    public boolean signIn(String email, String password) {
+        String sql = "SELECT * FROM loginandregister WHERE email = ? AND password = ?";
         try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
-            stmt.setString(1, userName);
+            stmt.setString(1, email);
             stmt.setString(2, password);
             
             ResultSet rs = stmt.executeQuery();
-            return rs.next(); // Eğer sonuç varsa, kullanıcı bilgileri doğru demektir.
+            return rs.next();
         } catch (SQLException e) {
             System.err.println("Giriş yapılırken hata oluştu:");
             e.printStackTrace();
             return false;
         }
+    }
+    
+    // --- Yeni Eklenti ---
+    // Email'e göre UserName bilgisini getirir.
+    public String getUserNameByEmail(String email) {
+        String sql = "SELECT UserName FROM loginandregister WHERE email = ?";
+        try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             
+            stmt.setString(1, email);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("UserName");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("UserName getirirken hata oluştu:");
+            e.printStackTrace();
+        }
+        return null;
     }
 }

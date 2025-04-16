@@ -62,56 +62,23 @@
       background-color: #95c11e;
       color: #000;
     }
-    #search-bar {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      position: relative;
-    }
-    #search-input {
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      background-color: #fff;
-      color: #000;
-      width: 200px;
-    }
-    #search-button {
-      padding: 10px 15px;
-      font-size: 16px;
-      background-color: #007bff;
-      color: #fff;
+    /* Arama input'u genişlettik */
+    #search-bar input#search-input {
+      width: 250px;
+      padding: 8px;
       border: none;
       border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
     }
-    #search-button:hover {
-      background-color: #0056b3;
-    }
-    #suggestions {
-      position: absolute;
-      top: 40px;
-      left: 0;
-      background-color: #fff;
-      border: 1px solid #ccc;
-      width: 100%;
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      z-index: 1000;
-      display: none;
-    }
-    #suggestions li {
-      padding: 8px;
+    #search-bar button#search-button {
+      padding: 8px 12px;
+      margin-left: 5px;
+      border: none;
+      border-radius: 5px;
+      background-color: #95c11e;
+      color: #000;
       cursor: pointer;
     }
-    #suggestions li:hover {
-      background-color: #f2f2f2;
-    }
-    
-    /* Dropdown CSS (Sadece Projects linki için eklenmiştir) */
+    /* Dropdown CSS (Projects ve SIGN UP OR SIGN IN için) */
     .dropdown {
       position: relative;
       display: inline-block;
@@ -132,21 +99,25 @@
       box-shadow: 0 8px 16px rgba(0,0,0,0.2);
       z-index: 9999;
     }
-    .dropdown-content a {
+    /* Dropdown içeriğindeki bağlantıların ve h4 etiketlerinin yazı boyutu küçültüldü */
+    .dropdown-content a, 
+    .dropdown-content h4 {
       color: #fff;
       padding: 8px 12px;
       text-decoration: none;
       display: block;
       transition: background-color 0.3s;
+      margin: 0;
+      font-size: 14px; /* Küçültülmüş font boyutu */
     }
-    .dropdown-content a:hover {
+    .dropdown-content a:hover,
+    .dropdown-content h4:hover {
       background-color: #95c11e;
       color: #000;
     }
     .dropdown:hover .dropdown-content {
       display: block;
     }
-    
     /* SADECE ŞU KISIMLARI DEĞİŞTİRİYORUZ */
     #getting-started-container {
       max-width: 95%; /* Ekranın %95'ini kullan (daha dar) */
@@ -225,7 +196,7 @@
   </style>
 </head>
 <body>
-  <!-- HEADER VE NAVIGATION -->
+  <!-- HEADER & NAVIGATION -->
   <header>
     <img id="logo" src="1.png" alt="Logo">
     <h1>Getting Started</h1>
@@ -240,7 +211,7 @@
       <div class="dropdown">
         <a class="dropbtn">
           <h4 data-lang="en">Projects</h4>
-          <h4 data-lang="tr" style="display: none;">Projeler</h4>
+          <h4 data-lang="tr" style="display:none;">Projeler</h4>
         </a>
         <div class="dropdown-content">
           <a href="project.jsp">Project List</a>
@@ -249,11 +220,21 @@
       </div>
       <a href="upload.jsp">UPLOAD</a>
       <a href="FAQs.jsp">FAQs</a>
-      <a href="index2.jsp">SIGN UP OR SIGN IN</a>
+      
+      <!-- SIGN UP OR SIGN IN dropdown (üzerine gelince LOGOUT görünsün) -->
+      <div class="dropdown">
+        <a class="dropbtn">SIGN UP OR SIGN IN</a>
+        <div class="dropdown-content">
+          <a href="LogoutServlet">
+            <h4 data-lang="en">LOGOUT</h4>
+            <h4 data-lang="tr" style="display:none;">ÇIKIŞ</h4>
+          </a>
+        </div>
+      </div>
     </nav>
   </header>
   
-  <!-- TABLO İÇERİĞİ -->
+  <!-- SAYFA İÇERİĞİ (örneğin, tablo, proje listesi vs.) -->
   <div id="getting-started-container">
     <table id="projects-table"> 
       <thead>
@@ -298,7 +279,6 @@
     <div class="project-count">
       Toplam Proje Sayısı: <%= totalProjects %>
     </div>
-    
     <table id="projects-table">
       <!-- Tablo içeriği aynı kalacak -->
     </table>
@@ -308,7 +288,7 @@
     <p>&copy; 2025 Your Platform Name. All rights reserved.</p>
   </footer>
       
-  <!-- JAVASCRIPT (Search, Dropdown vs. aynı kalacak) -->
+  <!-- JAVASCRIPT (Search, Dropdown vs. aynı kalıyor) -->
   <script>
     const searchInput = document.getElementById('search-input');
     const suggestionsList = document.getElementById('suggestions');

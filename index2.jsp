@@ -23,8 +23,9 @@
               <div style="color: red; margin-bottom: 10px;">Böyle kayıt yoktur.</div>
             <% } %>
             <div class="input-field">
-              <i class="fas fa-user"></i>
-              <input type="text" name="username" placeholder="Username" required />
+              <i class="fas fa-envelope"></i>
+              <!-- Burada "username" yerine "email" kullanıyoruz -->
+              <input type="email" name="email" placeholder="Email" required />
             </div>
             <div class="input-field">
               <i class="fas fa-lock"></i>
@@ -96,7 +97,6 @@
             <p>Already made an account here? Sign in and get access to all our services.</p>
             <button class="btn transparent" id="sign-in-btn">Sign in</button>
           </div>
-          
         </div>
       </div>
     </div>

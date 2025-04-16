@@ -30,13 +30,16 @@ public class UserServlet extends HttpServlet {
                 response.sendRedirect("index2.jsp?error=signup");
             }
         } else if ("signin".equals(action)) {
-            String username = request.getParameter("username");
+            String email = request.getParameter("email"); // username yerine email alınıyor
             String password = request.getParameter("password");
 
-            if (dao.signIn(username, password)) {
-                // Kullanıcı giriş yaptıktan sonra session'a ekleyelim
-                request.getSession().setAttribute("user", username);
-                // Eğer giriş formuna "return" parametresi gönderildiyse, oraya yönlendir
+            if (dao.signIn(email, password)) {
+                // --- Yeni Eklenti ---
+                // Email doğrulaması başarılı ise, ilgili UserName'i session'a ekleyelim.
+                String userName = dao.getUserNameByEmail(email);
+                request.getSession().setAttribute("user", email);
+                request.getSession().setAttribute("userName", userName);
+                
                 String returnPage = request.getParameter("return");
                 if (returnPage != null && !returnPage.isEmpty()) {
                     response.sendRedirect(returnPage);
