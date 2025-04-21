@@ -1,266 +1,173 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %> 
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
-    // Kullanıcının oturum açıp açmadığını kontrol ediyoruz.
     String user = (String) session.getAttribute("user");
     if (user == null) {
         response.sendRedirect("index2.jsp?error=loginfirst&return=upload.jsp");
         return;
     }
-    // Oturumdaki userName bilgisini alıyoruz.
     String userName = (String) session.getAttribute("userName");
 %>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Upload Project - Your Platform Name</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Project - ProjectHub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
   <style>
-      body {
-          font-family: Arial, sans-serif;
-          background-color: #f2f2f2;
-          padding: 20px;
-          margin: 0;
+    /* ——— GLOBAL ——— */
+    body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f2f2f2;margin:0;color:#333;padding:20px;}
+
+    /* ——— PROFESYONEL HEADER (aramasız) ——— */
+    header{background:#2c3e50;padding:15px 30px;box-shadow:0 2px 8px rgba(0,0,0,.12);position:sticky;top:0;z-index:1000;}
+      .header-container{display:flex;align-items:center;max-width:1400px;margin:0 auto;flex-wrap:wrap;width:100%;}
+      .logo-container{display:flex;align-items:center;margin-right:30px;}
+        #logo{width:40px;height:40px;margin-right:10px;}
+        .brand{color:#fff;font-size:1.5rem;font-weight:600;text-decoration:none;}
+
+      .nav-container{display:flex;align-items:center;flex-grow:1;justify-content:flex-end;flex-wrap:wrap;}
+      .nav-links{display:flex;align-items:center;list-style:none;margin:0;padding:0;}
+        .nav-item{margin-left:15px;position:relative;}
+        .nav-link{color:#ecf0f1;text-decoration:none;padding:8px 12px;border-radius:4px;font-size:15px;font-weight:500;display:flex;align-items:center;transition:background .3s;}
+        .nav-link:hover{background:rgba(255,255,255,.1);color:#fff;}
+
+      /* Dropdown */
+      .dropdown-menu{position:absolute;right:0;background:#fff;min-width:200px;box-shadow:0 8px 16px rgba(0,0,0,.1);border-radius:4px;padding:10px 0;display:none;z-index:1000;}
+      .dropdown:hover .dropdown-menu{display:block;}
+      .dropdown-item{display:block;padding:10px 20px;color:#333;text-decoration:none;transition:background .3s;}
+      .dropdown-item:hover{background:#f8f9fa;color:#2c3e50;}
+
+      /* Avatar */
+      .user-profile{display:flex;align-items:center;cursor:pointer;}
+      .user-avatar{width:32px;height:32px;border-radius:50%;margin-right:8px;background:#3498db;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold;}
+
+      /* Mobile */
+      .mobile-menu-btn{display:none;background:none;border:none;color:#fff;font-size:20px;cursor:pointer;}
+      @media(max-width:992px){
+        .header-container{flex-direction:column;align-items:stretch;}
+        .nav-container{flex-direction:column;align-items:stretch;margin-top:15px;display:none;}
+        .nav-container.active{display:flex;}
+        .nav-links{flex-direction:column;align-items:stretch;}
+        .nav-item{margin:5px 0;}
+        .dropdown-menu{position:static;box-shadow:none;width:100%;display:none;}
+        .dropdown:hover .dropdown-menu{display:block;}
+        .mobile-menu-btn{display:block;position:absolute;right:20px;top:20px;}
       }
-      header {
-          background-color: #343a40;
-          padding: 20px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          flex-wrap: wrap;
-      }
-      #logo {
-          width: 150px;
-          margin-right: 20px;
-      }
-      h1 {
-          margin: 0;
-          color: #fff;
-          font-size: 24px;
-          flex: 1;
-          text-align: center;
-      }
-      nav {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-          flex-wrap: wrap;
-      }
-      nav a {
-          color: #fff;
-          text-decoration: none;
-          font-size: 16px;
-          padding: 8px 12px;
-          border-radius: 5px;
-          transition: background-color 0.3s ease;
-      }
-      nav a:hover {
-          background-color: #95c11e;
-          color: #000;
-      }
-      /* Dropdown CSS (Sadece Projects ve SIGN UP OR SIGN IN için) */
-      .dropdown {
-          position: relative;
-          display: inline-block;
-      }
-      .dropbtn {
-          color: #fff;
-          background-color: transparent;
-          border: none;
-          cursor: pointer;
-          font-size: 16px;
-          padding: 0;
-      }
-      .dropdown-content {
-          display: none;
-          position: absolute;
-          background-color: #343a40;
-          min-width: 160px;
-          box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-          z-index: 9999;
-      }
-      .dropdown-content a, 
-      .dropdown-content h4 {
-          color: #fff;
-          padding: 8px 12px;
-          text-decoration: none;
-          display: block;
-          transition: background-color 0.3s;
-          margin: 0; 
-          font-size: 14px; /* Küçültülmüş font boyutu */
-      }
-      .dropdown-content a:hover,
-      .dropdown-content h4:hover {
-          background-color: #95c11e;
-          color: #000;
-      }
-      .dropdown:hover .dropdown-content {
-          display: block;
-      }
-      /* Form Container */
-      #upload-container {
-          max-width: 800px;
-          margin: 120px auto 60px;
-          padding: 40px;
-          background-color: #fff;
-          border-radius: 6px;
-          box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      }
-      form label {
-          display: block;
-          margin-bottom: 10px;
-          font-size: 18px;
-          color: #333;
-      }
-      form input,
-      form textarea,
-      form select {
-          width: 100%;
-          padding: 12px;
-          margin-bottom: 20px;
-          box-sizing: border-box;
-          font-size: 16px;
-          border: 1px solid #ccc;
-          border-radius: 5px;
-      }
-      form textarea {
-          resize: vertical;
-      }
-      form button {
-          background-color: #4caf50;
-          color: #fff;
-          padding: 15px 20px;
-          border: none;
-          border-radius: 5px;
-          font-size: 18px;
-          cursor: pointer;
-          transition: background-color 0.3s ease;
-      }
-      form button:hover {
-          background-color: #45a049;
-      }
-      footer {
-          background-color: #343a40;
-          padding: 10px;
-          text-align: center;
-          position: fixed;
-          bottom: 0;
-          width: 100%;
-          color: #fff;
-      }
+
+    /* ——— FORM & FOOTER (DEĞİŞMEDİ) ——— */
+    #upload-container{max-width:800px;margin:120px auto 60px;padding:40px;background:#fff;border-radius:6px;box-shadow:0 0 10px rgba(0,0,0,.1);}
+    form label{display:block;margin-bottom:10px;font-size:18px;color:#333;}
+    form input,form textarea,form select{width:100%;padding:12px;margin-bottom:20px;box-sizing:border-box;font-size:16px;border:1px solid #ccc;border-radius:5px;}
+    form textarea{resize:vertical;}
+    form button{background:#4caf50;color:#fff;padding:15px 20px;border:none;border-radius:5px;font-size:18px;cursor:pointer;transition:background .3s;}
+    form button:hover{background:#45a049;}
+
+    footer{ background:#343a40; padding:4px 8px; text-align:center; position:fixed; bottom:0; width:100%; color:#fff; font-size:14px;}
   </style>
 </head>
+
 <body>
-  <header>
+<!-- ——— HEADER ——— -->
+<header>
+  <div class="header-container">
+    <div class="logo-container">
       <img id="logo" src="1.png" alt="Logo">
-      <h1>Upload Project</h1>
-      <nav>
-          <a href="insert.jsp">HOME</a>
-          <!-- Projects dropdown menü -->
-          <div class="dropdown">
-              <a class="dropbtn">
-                  <h4 data-lang="en">Projects</h4>
-                  <h4 data-lang="tr" style="display: none;">Projeler</h4>
-              </a>
-              <div class="dropdown-content">
-                  <a href="project.jsp">Project List</a>
-                  <a href="report.jsp">Project Reports</a>
-              </div>
+      <a href="insert.jsp" class="brand">ProjectHub</a>
+    </div>
+
+    <button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fas fa-bars"></i></button>
+
+    <div class="nav-container" id="navContainer">
+      <ul class="nav-links">
+        <li class="nav-item"><a href="insert.jsp" class="nav-link"><i class="fas fa-home"></i><span>Home</span></a></li>
+
+        <li class="nav-item dropdown">
+          <a href="#" class="nav-link"><i class="fas fa-project-diagram"></i><span>Projects</span><i class="fas fa-chevron-down" style="margin-left:5px;font-size:12px;"></i></a>
+          <div class="dropdown-menu">
+            <a href="project.jsp" class="dropdown-item">Project List</a>
+            <a href="report.jsp"  class="dropdown-item">Project Reports</a>
           </div>
-          <a href="upload.jsp">UPLOAD</a>
-          <a href="FAQs.jsp">FAQs</a>
-          <!-- SIGN UP OR SIGN IN dropdown yerine giriş yapan kullanıcının UserName'ini gösteriyoruz -->
-          <div class="dropdown">
-              <a class="dropbtn">
-                  <% if(userName != null) { %>
-                      Hoşgeldiniz, <%= userName %>
-                  <% } else { %>
-                      SIGN UP OR SIGN IN
-                  <% } %>
-              </a>
-              <div class="dropdown-content">
-                  <a href="LogoutServlet">
-                      <h4 data-lang="en">LOGOUT</h4>
-                      <h4 data-lang="tr" style="display: none;">ÇIKIŞ</h4>
-                  </a>
-              </div>
+        </li>
+
+        <li class="nav-item"><a href="upload.jsp" class="nav-link"><i class="fas fa-upload"></i><span>Upload</span></a></li>
+        <li class="nav-item"><a href="FAQs.jsp" class="nav-link"><i class="fas fa-question-circle"></i><span>FAQs</span></a></li>
+
+        <li class="nav-item dropdown">
+          <div class="user-profile nav-link">
+            <div class="user-avatar"><%= userName!=null?userName.charAt(0):'U' %></div>
+            <span><%= (userName!=null)?("Hoşgeldiniz, "+userName):"SIGN IN" %></span>
+            <i class="fas fa-chevron-down" style="margin-left:5px;font-size:12px;"></i>
           </div>
-      </nav>
-  </header>
-  <div id="upload-container">
-      <form action="ProjectServlet" method="post" enctype="multipart/form-data">
-          <!-- Proje Konusu -->
-          <label for="projectTopic">Proje Konusu:</label>
-          <input type="text" id="projectTopic" name="projectTopic" required>
-          
-          <!-- Yükleme Başlangıç Tarihi -->
-          <label for="uploadStartDate">Yükleme Başlangıç Tarihi:</label>
-          <input type="date" id="uploadStartDate" name="uploadStartDate" required placeholder="yyyy-MM-dd" />
-          
-          <!-- Yükleme Bitiş Tarihi -->
-          <label for="uploadEndDate">Yükleme Bitiş Tarihi:</label>
-          <input type="date" id="uploadEndDate" name="uploadEndDate" required placeholder="yyyy-MM-dd" />
-          
-          <!-- Ders Adı -->
-          <label for="courseName">Ders Adı:</label>
-          <input type="text" id="courseName" name="courseName" required>
-          
-          <!-- Danışman Adı -->
-          <label for="advisorName">Danışman Adı:</label>
-          <input type="text" id="advisorName" name="advisorName" required>
-          
-          <!-- GitHub Link -->
-          <label for="githubLink">GitHub Link:</label>
-          <input type="text" id="githubLink" name="githubLink" required>
-          
-          <!-- Kütüphane Linki -->
-          <label for="libraryLink">Kütüphane Linki:</label>
-          <input type="text" id="libraryLink" name="libraryLink" required>
-          
-          <!-- Proje Publish Edildi mi? -->
-          <label for="projectPublished">Proje Publish Edildi mi?</label>
-          <select id="projectPublished" name="projectPublished" required>
-              <option value="" selected disabled>Seçiniz</option>
-              <option value="yes">Evet</option>
-              <option value="no">Hayır</option>
-          </select>
-          
-          <!-- Projenin Aldığı Ödüller -->
-          <label for="projectAwards">Projenin Aldığı Ödüller (1-5):</label>
-          <select id="projectAwards" name="projectAwards" required>
-              <option value="" selected disabled>Seçiniz</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-          </select>
-          
-          <!-- Proje Açıklaması -->
-          <label for="projectDescription">Proje Açıklaması:</label>
-          <textarea id="projectDescription" name="projectDescription" rows="5" required></textarea> 
-          
-          <!-- Proje Resmi -->
-          <label for="projectImage">Proje Resmi:</label>
-          <input type="file" id="projectImage" name="projectImage" accept="image/*" required> 
-          
-          <button type="submit">Upload</button>
-      </form>
+          <div class="dropdown-menu">
+            <a href="LogoutServlet" class="dropdown-item"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
+          </div>
+        </li>
+      </ul>
+    </div>
   </div>
-  <%
-      String errorMessage = (String) request.getAttribute("errorMessage"); 
-      if (errorMessage != null) { 
-  %>
-  <script>
-      alert("<%= errorMessage %>");
-  </script>
-  <%
-      } 
-  %>
-  <footer>
-      <p>&copy; 2025 Your Platform Name. All rights reserved.</p>
-  </footer>
+</header>
+
+<!-- ——— FORM ——— -->
+<div id="upload-container">
+  <form action="ProjectServlet" method="post" enctype="multipart/form-data">
+    <label for="projectTopic">Proje Konusu:</label>
+    <input type="text" id="projectTopic" name="projectTopic" required>
+
+    <label for="uploadStartDate">Yükleme Başlangıç Tarihi:</label>
+    <input type="date" id="uploadStartDate" name="uploadStartDate" required placeholder="yyyy-MM-dd">
+
+    <label for="uploadEndDate">Yükleme Bitiş Tarihi:</label>
+    <input type="date" id="uploadEndDate" name="uploadEndDate" required placeholder="yyyy-MM-dd">
+
+    <label for="courseName">Ders Adı:</label>
+    <input type="text" id="courseName" name="courseName" required>
+
+    <label for="advisorName">Danışman Adı:</label>
+    <input type="text" id="advisorName" name="advisorName" required>
+
+    <label for="githubLink">GitHub Link:</label>
+    <input type="text" id="githubLink" name="githubLink" required>
+
+    <label for="libraryLink">Kütüphane Linki:</label>
+    <input type="text" id="libraryLink" name="libraryLink" required>
+
+    <label for="projectPublished">Proje Publish Edildi mi?</label>
+    <select id="projectPublished" name="projectPublished" required>
+      <option value="" selected disabled>Seçiniz</option>
+      <option value="yes">Evet</option>
+      <option value="no">Hayır</option>
+    </select>
+
+    <label for="projectAwards">Projenin Aldığı Ödüller (1‑5):</label>
+    <select id="projectAwards" name="projectAwards" required>
+      <option value="" selected disabled>Seçiniz</option>
+      <option value="1">1</option><option value="2">2</option>
+      <option value="3">3</option><option value="4">4</option>
+      <option value="5">5</option>
+    </select>
+
+    <label for="projectDescription">Proje Açıklaması:</label>
+    <textarea id="projectDescription" name="projectDescription" rows="5" required></textarea>
+
+    <label for="projectImage">Proje Resmi:</label>
+    <input type="file" id="projectImage" name="projectImage" accept="image/*" required>
+
+    <button type="submit">Upload</button>
+  </form>
+</div>
+
+<% String errorMessage=(String)request.getAttribute("errorMessage"); if(errorMessage!=null){ %>
+<script>alert("<%= errorMessage %>");</script>
+<% } %>
+
+<footer><p>&copy; 2025 ProjectHub. All rights reserved.</p></footer>
+
+<script>
+/* Mobil menü butonu */
+document.getElementById('mobileMenuBtn').addEventListener('click',function(){
+  document.getElementById('navContainer').classList.toggle('active');
+});
+</script>
 </body>
 </html>

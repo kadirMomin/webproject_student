@@ -299,4 +299,36 @@ public Map<String, Integer> getProjectCountByAdvisor() {
         return projects;
     }
     
+    // ProjectDAO sınıfına bu metodu ekleyin
+public List<Project> searchProjectsByAdvisor(String advisorName) {
+    List<Project> projects = new ArrayList<>();
+    String sql = "SELECT projectTopic, uploadStartDate, uploadEndDate, courseName, advisorName, githubLink, libraryLink, projectDescription, projectImage, projectPublished, projectAwards "
+               + "FROM uploadfile "
+               + "WHERE advisorName LIKE ? "
+               + "ORDER BY advisorName";
+    try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setString(1, "%" + advisorName + "%");
+        try (ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                String topic = rs.getString("projectTopic");
+                java.sql.Date startDate = rs.getDate("uploadStartDate");
+                java.sql.Date endDate = rs.getDate("uploadEndDate");
+                String course = rs.getString("courseName");
+                String advisor = rs.getString("advisorName");
+                String github = rs.getString("githubLink");
+                String library = rs.getString("libraryLink");
+                String description = rs.getString("projectDescription");
+                String image = rs.getString("projectImage");
+                String published = rs.getString("projectPublished");
+                String awards = rs.getString("projectAwards");
+                projects.add(new Project(topic, startDate, endDate, course, advisor, github, library, description, image, published, awards));
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return projects;
+}
+    
 }
