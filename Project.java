@@ -3,128 +3,99 @@ package project;
 import java.sql.Date;
 
 public class Project {
+
+    /* ---------- Alanlar ---------- */
+    private int    id;                 // ← benzersiz anahtar
     private String projectTopic;
-    private Date uploadStartDate;
-    private Date uploadEndDate;
+    private Date   uploadStartDate;
+    private Date   uploadEndDate;
     private String courseName;
     private String advisorName;
     private String githubLink;
-    private String libraryLink;      // Yeni alan: Kütüphane Linki
+    private String libraryLink;
     private String projectDescription;
-    private String projectImage;     // Dosya adı veya yolu
+    private String projectImage;
+    private String projectPublished;
+    private String publishLink;
+    private String projectAwards;
 
-    // Yeni eklenen alanlar
-    private String projectPublished; // "yes" veya "no"
-    private String projectAwards;    // "1" ile "5" arası değer
+    /* ---------- Kurucular ---------- */
 
-    // Parametresiz Constructor
-    public Project() {
-    }
+    /* Parametresiz: (framework / JSP ihtiyaçları için) */
+    public Project() {}
 
-    // Parametreli Constructor (Yeni alanlar eklendi)
-    public Project(String projectTopic, Date uploadStartDate, Date uploadEndDate, 
-                   String courseName, String advisorName, String githubLink, String libraryLink,
+    /* Tam kurucu  (id + diğer 12 alan = 13 parametre) */
+    public Project(int id,
+                   String projectTopic, Date uploadStartDate, Date uploadEndDate,
+                   String courseName, String advisorName,
+                   String githubLink, String libraryLink,
                    String projectDescription, String projectImage,
-                   String projectPublished, String projectAwards) {
-        this.projectTopic = projectTopic;
-        this.uploadStartDate = uploadStartDate;
-        this.uploadEndDate = uploadEndDate;
-        this.courseName = courseName;
-        this.advisorName = advisorName;
-        this.githubLink = githubLink;
-        this.libraryLink = libraryLink;
-        this.projectDescription = projectDescription;
-        this.projectImage = projectImage;
-        this.projectPublished = projectPublished;
-        this.projectAwards = projectAwards;
+                   String projectPublished, String publishLink, String projectAwards) {
+
+        this.id                = id;
+        this.projectTopic      = projectTopic;
+        this.uploadStartDate   = uploadStartDate;
+        this.uploadEndDate     = uploadEndDate;
+        this.courseName        = courseName;
+        this.advisorName       = advisorName;
+        this.githubLink        = githubLink;
+        this.libraryLink       = libraryLink;
+        this.projectDescription= projectDescription;
+        this.projectImage      = projectImage;
+        this.projectPublished  = projectPublished;
+        this.publishLink       = publishLink;
+        this.projectAwards     = projectAwards;
     }
 
-    // Getter ve Setter metodları
-    public String getProjectTopic() {
-        return projectTopic;
+    /* Eğer DAO’nuz hâlâ id OLMADAN obje oluşturuyorsa bu 12’li kurucuyu
+       ister­seniz bırakabilirsiniz; ama id’li versiyon eklenince sorun yok. */
+    public Project(String projectTopic, Date uploadStartDate, Date uploadEndDate,
+                   String courseName, String advisorName,
+                   String githubLink, String libraryLink,
+                   String projectDescription, String projectImage,
+                   String projectPublished, String publishLink, String projectAwards) {
+        this(0, projectTopic, uploadStartDate, uploadEndDate,
+             courseName, advisorName, githubLink, libraryLink,
+             projectDescription, projectImage, projectPublished, publishLink, projectAwards);
     }
 
-    public void setProjectTopic(String projectTopic) {
-        this.projectTopic = projectTopic;
-    }
+    /* ---------- Getter + Setter’lar ---------- */
+    public int    getId()                      { return id; }
+    public void   setId(int id)                { this.id = id; }
 
-    public Date getUploadStartDate() {
-        return uploadStartDate;
-    }
+    public String getProjectTopic()            { return projectTopic; }
+    public void   setProjectTopic(String t)    { this.projectTopic = t; }
 
-    public void setUploadStartDate(Date uploadStartDate) {
-        this.uploadStartDate = uploadStartDate;
-    }
+    public Date   getUploadStartDate()         { return uploadStartDate; }
+    public void   setUploadStartDate(Date d)   { this.uploadStartDate = d; }
 
-    public Date getUploadEndDate() {
-        return uploadEndDate;
-    }
+    public Date   getUploadEndDate()           { return uploadEndDate; }
+    public void   setUploadEndDate(Date d)     { this.uploadEndDate = d; }
 
-    public void setUploadEndDate(Date uploadEndDate) {
-        this.uploadEndDate = uploadEndDate;
-    }
+    public String getCourseName()              { return courseName; }
+    public void   setCourseName(String c)      { this.courseName = c; }
 
-    public String getCourseName() {
-        return courseName;
-    }
+    public String getAdvisorName()             { return advisorName; }
+    public void   setAdvisorName(String a)     { this.advisorName = a; }
 
-    public void setCourseName(String courseName) {
-        this.courseName = courseName;
-    }
+    public String getGithubLink()              { return githubLink; }
+    public void   setGithubLink(String g)      { this.githubLink = g; }
 
-    public String getAdvisorName() {
-        return advisorName;
-    }
+    public String getLibraryLink()             { return libraryLink; }
+    public void   setLibraryLink(String l)     { this.libraryLink = l; }
 
-    public void setAdvisorName(String advisorName) {
-        this.advisorName = advisorName;
-    }
+    public String getProjectDescription()      { return projectDescription; }
+    public void   setProjectDescription(String d){ this.projectDescription = d; }
 
-    public String getGithubLink() {
-        return githubLink;
-    }
+    public String getProjectImage()            { return projectImage; }
+    public void   setProjectImage(String i)    { this.projectImage = i; }
 
-    public void setGithubLink(String githubLink) {
-        this.githubLink = githubLink;
-    }
+    public String getProjectPublished()        { return projectPublished; }
+    public void   setProjectPublished(String p){ this.projectPublished = p; }
 
-    public String getLibraryLink() {
-        return libraryLink;
-    }
+    public String getPublishLink()             { return publishLink; }
+    public void   setPublishLink(String l)     { this.publishLink = l; }
 
-    public void setLibraryLink(String libraryLink) {
-        this.libraryLink = libraryLink;
-    }
-
-    public String getProjectDescription() {
-        return projectDescription;
-    }
-
-    public void setProjectDescription(String projectDescription) {
-        this.projectDescription = projectDescription;
-    }
-
-    public String getProjectImage() {
-        return projectImage;
-    }
-
-    public void setProjectImage(String projectImage) {
-        this.projectImage = projectImage;
-    }
-    
-    public String getProjectPublished() {
-        return projectPublished;
-    }
-
-    public void setProjectPublished(String projectPublished) {
-        this.projectPublished = projectPublished;
-    }
-
-    public String getProjectAwards() {
-        return projectAwards;
-    }
-
-    public void setProjectAwards(String projectAwards) {
-        this.projectAwards = projectAwards;
-    }
+    public String getProjectAwards()           { return projectAwards; }
+    public void   setProjectAwards(String a)   { this.projectAwards = a; }
 }

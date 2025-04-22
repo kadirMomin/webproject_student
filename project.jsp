@@ -18,8 +18,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Getting Started - Your Platform Name</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <title>Project List - ProjectHub</title>
+
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
   <style>
     /* ——— GLOBAL ——— */
@@ -67,18 +69,17 @@
         .mobile-menu-btn{display:block;position:absolute;right:20px;top:20px;}
       }
 
-    /* ——— TABLE & ETC. (DEĞİŞMEDİ) ——— */
+    /* ——— CONTENT ——— */
     #getting-started-container{max-width:95%;margin:20px auto;padding:15px;background:#fff;border-radius:6px;box-shadow:0 0 10px rgba(0,0,0,.1);overflow-x:auto;}
-    #getting-started-container table{width:100%;margin:10px 0;border-collapse:collapse;table-layout:auto;}
-    #getting-started-container th,#getting-started-container td{background:#fff;border:1px solid #ddd;padding:10px 12px;text-align:left;min-width:80px;}
+    #getting-started-container table{width:100%;border-collapse:collapse;}
+    #getting-started-container th,#getting-started-container td{border:1px solid #ddd;padding:10px 12px;text-align:left;}
     #getting-started-container th{background:#4caf50;color:#fff;position:sticky;top:0;}
 
     .btn{padding:5px 10px;border-radius:5px;font-size:14px;text-decoration:none;color:#fff;}
     .btn-info{background:#17a2b8;}.btn-info:hover{background:#138496;}
-    a{color:#007bff;text-decoration:none;} a:hover{text-decoration:underline;}
 
-    footer{ background:#343a40; padding:4px 8px; text-align:center; position:fixed; bottom:0; width:100%; color:#fff; font-size:14px;} 
-   .project-count{background:#4caf50;color:#fff;padding:8px 15px;border-radius:5px;margin-bottom:15px;display:inline-block;font-weight:bold;}
+    footer{background:#343a40;padding:4px 8px;text-align:center;position:fixed;bottom:0;width:100%;color:#fff;font-size:14px;}
+    .project-count{background:#4caf50;color:#fff;padding:8px 15px;border-radius:5px;margin-bottom:15px;display:inline-block;font-weight:bold;}
   </style>
 </head>
 
@@ -94,8 +95,7 @@
     <button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fas fa-bars"></i></button>
 
     <div class="nav-container" id="navContainer">
-
-      <!-- Arama alanları -->
+      <!-- Search alanları -->
       <div class="search-container">
         <div class="search-box" id="search-bar">
           <input type="text" class="search-input" id="search-input" placeholder="Search projects...">
@@ -108,7 +108,7 @@
         </div>
       </div>
 
-      <!-- Navigasyon -->
+      <!-- Nav links -->
       <ul class="nav-links">
         <li class="nav-item"><a href="insert.jsp" class="nav-link"><i class="fas fa-home"></i><span>Home</span></a></li>
 
@@ -116,7 +116,7 @@
           <a href="#" class="nav-link"><i class="fas fa-project-diagram"></i><span>Projects</span><i class="fas fa-chevron-down" style="margin-left:5px;font-size:12px;"></i></a>
           <div class="dropdown-menu">
             <a href="project.jsp" class="dropdown-item">Project List</a>
-            <a href="report.jsp" class="dropdown-item">Project Reports</a>
+            <a href="report.jsp"  class="dropdown-item">Project Reports</a>
           </div>
         </li>
 
@@ -125,7 +125,8 @@
 
         <li class="nav-item dropdown">
           <div class="user-profile nav-link">
-            <div class="user-avatar"><%= user != null ? user.charAt(0) : 'U' %></div><span>Account</span><i class="fas fa-chevron-down" style="margin-left:5px;font-size:12px;"></i>
+            <div class="user-avatar"><%= user != null ? user.charAt(0) : 'U' %></div>
+            <span>Account</span><i class="fas fa-chevron-down" style="margin-left:5px;font-size:12px;"></i>
           </div>
           <div class="dropdown-menu">
             <a href="LogoutServlet" class="dropdown-item"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
@@ -136,9 +137,10 @@
   </div>
 </header>
 
-<!-- ——— İÇERİK ——— -->
+<!-- ——— CONTENT ——— -->
 <div id="getting-started-container">
   <div class="project-count">Toplam Proje Sayısı: <%= totalProjects %></div>
+
   <table id="projects-table">
     <thead>
       <tr>
@@ -150,17 +152,32 @@
       <% for(Project p : projectList){
            String zamanStr = p.getUploadStartDate()+" / "+p.getUploadEndDate(); %>
       <tr>
-        <td><%=p.getProjectTopic()%></td>
-        <td><%=zamanStr%></td>
-        <td><%=p.getCourseName()%></td>
-        <td><%=p.getAdvisorName()%></td>
-        <td><a href="<%=p.getGithubLink()%>" target="_blank">GitHub Link</a></td>
-        <td><a href="<%=p.getLibraryLink()%>" target="_blank"><%=p.getLibraryLink()%></a></td>
-        <td><%=p.getProjectPublished().equalsIgnoreCase("yes")?"Evet":"Hayır"%></td>
-        <td><%=p.getProjectAwards()%></td>
+        <td><%= p.getProjectTopic() %></td>
+        <td><%= zamanStr %></td>
+        <td><%= p.getCourseName() %></td>
+        <td><%= p.getAdvisorName() %></td>
+        <td><a href="<%= p.getGithubLink() %>" target="_blank">GitHub Link</a></td>
+        <td><a href="<%= p.getLibraryLink() %>" target="_blank"><%= p.getLibraryLink() %></a></td>
+        <!-- ——— Yalnızca burası değiştirildi ——— -->
+        <td>
+          <%
+            if ("yes".equalsIgnoreCase(p.getProjectPublished())) {
+                String link = p.getPublishLink();
+                if (link != null && !link.isBlank()) {
+          %>
+                  <a href="<%= link %>" target="_blank">Yayın Linki</a>
+          <%
+                } else { out.print("Evet"); }
+            } else {
+                out.print("Hayır");
+            }
+          %>
+        </td>
+        <!-- ——— / Değişiklik ——— -->
+        <td><%= p.getProjectAwards() %></td>
         <td>
           <form action="ProjectDetailServlet" method="get" style="margin:0;">
-            <input type="hidden" name="projectTopic" value="<%=p.getProjectTopic()%>">
+            <input type="hidden" name="projectTopic" value="<%= p.getProjectTopic() %>">
             <button type="submit" class="btn btn-info">Detay Göster</button>
           </form>
         </td>
@@ -175,7 +192,8 @@
 <!-- ——— JAVASCRIPT ——— -->
 <script>
 /* Mobil menü */
-document.getElementById('mobileMenuBtn').addEventListener('click',()=>document.getElementById('navContainer').classList.toggle('active'));
+document.getElementById('mobileMenuBtn')
+        .addEventListener('click',()=>document.getElementById('navContainer').classList.toggle('active'));
 
 /* Danışman araması */
 document.getElementById('advisor-search-button').addEventListener('click',function(){
@@ -203,11 +221,17 @@ searchButton.addEventListener('click',()=>{
     .catch(()=>projectsBody.innerHTML='<tr><td colspan="9" style="text-align:center;color:red;">Hata oluştu!</td></tr>');
 });
 
-/* Sonuçları tabloya ekle — template literal YOK! */
+/* Sonuçları tabloya ekle */
 function renderRows(data,isAdvisor){
   projectsBody.innerHTML='';
   if(data.length){
     data.forEach(function(p){
+      const pubCell = (p.projectPublished && p.projectPublished.toLowerCase()==='yes')
+          ? ( (p.publishLink && p.publishLink!=='' ) 
+              ? '<a href="'+p.publishLink+'" target="_blank">Yayın Linki</a>' 
+              : 'Evet' )
+          : 'Hayır';
+
       var row =
         '<tr>'+
           '<td>'+(p.projectTopic || '')+'</td>'+
@@ -216,7 +240,7 @@ function renderRows(data,isAdvisor){
           '<td>'+(p.advisorName || '')+'</td>'+
           '<td><a href="'+(p.githubLink || '#')+'" target="_blank">GitHub Link</a></td>'+
           '<td><a href="'+(p.libraryLink || '#')+'" target="_blank">'+(p.libraryLink || '')+'</a></td>'+
-          '<td>'+ ( (p.projectPublished && p.projectPublished.toLowerCase()==='yes') ? 'Evet' : 'Hayır' ) +'</td>'+
+          '<td>'+ pubCell +'</td>'+
           '<td>'+(p.projectAwards || '')+'</td>'+
           '<td>'+
             '<form action="ProjectDetailServlet" method="get" style="margin:0;">'+
@@ -231,17 +255,6 @@ function renderRows(data,isAdvisor){
     var msg=isAdvisor?'No records found for this advisor!':'Kayıt bulunamadı!';
     projectsBody.innerHTML='<tr><td colspan="9" style="text-align:center;">'+msg+'</td></tr>';
   }
-}
-
-/* Dil tercihi */
-document.addEventListener('DOMContentLoaded',()=>{
-  var lang=localStorage.getItem('language')||'en';
-  changeLanguage(lang);
-});
-function changeLanguage(lang){
-  document.querySelectorAll('[data-lang]').forEach(function(el){
-    el.style.display=(el.getAttribute('data-lang')===lang)?'block':'none';
-  });
 }
 </script>
 </body>

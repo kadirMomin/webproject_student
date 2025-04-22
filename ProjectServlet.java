@@ -1,17 +1,10 @@
 package project;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.List;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.MultipartConfig;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.Part;
+import jakarta.servlet.*;
+import jakarta.servlet.annotation.*;
+import jakarta.servlet.http.*;
 
 @WebServlet("/ProjectServlet")
 @MultipartConfig
@@ -20,97 +13,79 @@ public class ProjectServlet extends HttpServlet {
     private static final String UPLOAD_DIR = "uploads";
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    protected void doPost(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
-        request.setCharacterEncoding("UTF-8");
-        response.setContentType("text/html;charset=UTF-8");
 
-        // Metin alanlarını oku:
-        String projectTopic = readFormField(request.getPart("projectTopic"));
-        String courseName = readFormField(request.getPart("courseName"));
-        String advisorName = readFormField(request.getPart("advisorName"));
-        String githubLink = readFormField(request.getPart("githubLink"));
-        String libraryLink = readFormField(request.getPart("libraryLink")); // Yeni: Kütüphane Linki
-        String projectDescription = readFormField(request.getPart("projectDescription"));
-        
-        // Yeni eklenen alanlar:
-        String projectPublished = readFormField(request.getPart("projectPublished"));
-        String projectAwards = readFormField(request.getPart("projectAwards"));
+        req.setCharacterEncoding("UTF-8");
+        res.setContentType("text/html;charset=UTF-8");
 
-        // Tarih alanları
-        String startDateStr = readFormField(request.getPart("uploadStartDate"));
-        String endDateStr = readFormField(request.getPart("uploadEndDate"));
+        /* Form alanları */
+        String projectTopic       = readFormField(req.getPart("projectTopic"));
+        String courseName         = readFormField(req.getPart("courseName"));
+        String advisorName        = readFormField(req.getPart("advisorName"));
+        String githubLink         = readFormField(req.getPart("githubLink"));
+        String libraryLink        = readFormField(req.getPart("libraryLink"));
+        String projectDescription = readFormField(req.getPart("projectDescription"));
 
-        if (projectTopic == null || projectTopic.trim().isEmpty()) {
-            throw new ServletException("Proje konusu boş bırakılamaz!");
-        }
-        if (startDateStr == null || startDateStr.trim().isEmpty()) {
-            throw new ServletException("Yükleme Başlangıç Tarihi boş bırakılamaz!");
-        }
-        if (endDateStr == null || endDateStr.trim().isEmpty()) {
-            throw new ServletException("Yükleme Bitiş Tarihi boş bırakılamaz!");
-        }
+        String projectPublished   = readFormField(req.getPart("projectPublished"));
+        String publishLink        = readFormField(req.getPart("publishLink"));
+        String projectAwards      = readFormField(req.getPart("projectAwards"));
 
-        java.sql.Date uploadStartDate;
-        java.sql.Date uploadEndDate;
-        try {
-            uploadStartDate = java.sql.Date.valueOf(startDateStr);
-            uploadEndDate = java.sql.Date.valueOf(endDateStr);
-        } catch (IllegalArgumentException e) {
-            throw new ServletException("Tarih formatı hatalı: " + e.getMessage());
-        }
+        String startDateStr       = readFormField(req.getPart("uploadStartDate"));
+        String endDateStr         = readFormField(req.getPart("uploadEndDate"));
 
-        // Proje resmini işleme
-        Part imagePart = request.getPart("projectImage");
-        String fileName = extractFileName(imagePart);
-        String applicationPath = request.getServletContext().getRealPath("");
-        String uploadPath = applicationPath + File.separator + UPLOAD_DIR;
-        File uploadDir = new File(uploadPath);
-        if (!uploadDir.exists()) {
-            uploadDir.mkdirs();
-        }
-        imagePart.write(uploadPath + File.separator + fileName);
-        String projectImage = fileName;
+        java.sql.Date uploadStartDate = java.sql.Date.valueOf(startDateStr);
+        java.sql.Date uploadEndDate   = java.sql.Date.valueOf(endDateStr);
 
-        // Project nesnesini, yeni alanlar dahil olacak şekilde oluşturun.
-        Project project = new Project(projectTopic, uploadStartDate, uploadEndDate,
-                courseName, advisorName, githubLink, libraryLink, projectDescription, projectImage,
-                projectPublished, projectAwards);
-
-        // Veritabanına ekleme
-        ProjectDAO dao = new ProjectDAO();
-        boolean inserted = dao.insertProject(project);
-        if (!inserted) {
-            request.setAttribute("errorMessage", "Aynı proje konusu, başlangıç ve bitiş tarihleri ile kayıt mevcut. Lütfen farklı tarih veya proje konusu giriniz.");
-            request.getRequestDispatcher("upload.jsp").forward(request, response);
+        /* Link zorunlu kontrolü */
+        if("yes".equalsIgnoreCase(projectPublished) &&
+           (publishLink==null || publishLink.isBlank())){
+            req.setAttribute("errorMessage","Publish linki girmelisiniz!");
+            req.getRequestDispatcher("upload.jsp").forward(req,res);
             return;
         }
 
-        // Proje listesini güncelle
-        List<Project> projectList = dao.getAllProjects();
-        request.setAttribute("projectList", projectList);
-        request.getRequestDispatcher("project.jsp").forward(request, response);
+        /* Resim kaydetme */
+        Part imagePart     = req.getPart("projectImage");
+        String fileName    = extractFileName(imagePart);
+        String appPath     = req.getServletContext().getRealPath("");
+        String uploadPath  = appPath + File.separator + UPLOAD_DIR;
+        File   dir         = new File(uploadPath);
+        if(!dir.exists()){ dir.mkdirs(); }
+        imagePart.write(uploadPath + File.separator + fileName);
+
+        Project pr = new Project(projectTopic, uploadStartDate, uploadEndDate,
+                                 courseName, advisorName,
+                                 githubLink, libraryLink,
+                                 projectDescription, fileName,
+                                 projectPublished, publishLink, projectAwards);
+
+        ProjectDAO dao = new ProjectDAO();
+        if(!dao.insertProject(pr)){
+            req.setAttribute("errorMessage","Aynı proje zaten kayıtlı!");
+            req.getRequestDispatcher("upload.jsp").forward(req,res);
+            return;
+        }
+
+        List<Project> list = dao.getAllProjects();
+        req.setAttribute("projectList", list);
+        req.getRequestDispatcher("project.jsp").forward(req,res);
     }
 
-    private String readFormField(Part part) throws IOException {
-        if (part == null) {
-            return null;
+    /* Yardımcı metotlar */
+    private String readFormField(Part part) throws IOException{
+        if(part==null){ return null; }
+        try(BufferedReader br = new BufferedReader(
+                new InputStreamReader(part.getInputStream(),"UTF-8"))){
+            StringBuilder sb = new StringBuilder(); String line;
+            while((line=br.readLine())!=null){ sb.append(line); }
+            return sb.toString();
         }
-        BufferedReader reader = new BufferedReader(new InputStreamReader(part.getInputStream(), "UTF-8"));
-        StringBuilder value = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            value.append(line);
-        }
-        return value.toString();
     }
-
-    private String extractFileName(Part part) {
-        String contentDisp = part.getHeader("content-disposition");
-        String[] items = contentDisp.split(";");
-        for (String s : items) {
-            if (s.trim().startsWith("filename")) {
-                return s.substring(s.indexOf('=') + 2, s.length() - 1);
+    private String extractFileName(Part part){
+        for(String cd : part.getHeader("content-disposition").split(";")){
+            if(cd.trim().startsWith("filename")){
+                return cd.substring(cd.indexOf('=')+2, cd.length()-1);
             }
         }
         return "";
