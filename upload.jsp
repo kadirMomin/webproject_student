@@ -173,6 +173,9 @@
 
     <label for="projectImage">Proje Resmi:</label>
     <input type="file" id="projectImage" name="projectImage" accept="image/*" required>
+    
+    <label for="projectZip">Proje ZIP Dosyası:</label>
+<input type="file" id="projectZip" name="projectZip" accept=".zip" required>
 
     <button type="submit">Upload</button>
   </form>

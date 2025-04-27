@@ -24,11 +24,11 @@ public class ProjectDAO {
     }
 
     /* =====================================================
-       INSERT  ( id AUTO_INCREMENT olduğu için SET etmiyoruz )
+       INSERT  ( id AUTO_INCREMENT olduğu için SET etmiyoruz )
        ===================================================== */
     public boolean insertProject(Project p) {
 
-        /* Aynı konu + tarih var mı? */
+        /* Aynı konu + tarih var mı? */
         String check = "SELECT COUNT(*) FROM uploadfile "
                      + "WHERE projectTopic=? AND uploadStartDate=? AND uploadEndDate=?";
 
@@ -44,13 +44,13 @@ public class ProjectDAO {
             }
         } catch (SQLException e) { e.printStackTrace(); return false; }
 
-        /* Ekleme */
+        /* Ekleme */
         String sql = "INSERT INTO uploadfile "
                    + "(projectTopic, uploadStartDate, uploadEndDate, "
                    +  "courseName, advisorName, githubLink, libraryLink, "
-                   +  "projectDescription, projectImage, "
+                   +  "projectDescription, projectImage, projectFile, "   /* ← eklendi */
                    +  "projectPublished, publishLink, projectAwards) "
-                   + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
+                   + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         try (Connection c = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
              PreparedStatement s = c.prepareStatement(sql)) {
@@ -64,23 +64,24 @@ public class ProjectDAO {
             s.setString(7,  p.getLibraryLink());
             s.setString(8,  p.getProjectDescription());
             s.setString(9,  p.getProjectImage());
-            s.setString(10, p.getProjectPublished());
-            s.setString(11, p.getPublishLink());
-            s.setString(12, p.getProjectAwards());
+            s.setString(10, p.getProjectFile());          /* ← eklendi */
+            s.setString(11, p.getProjectPublished());
+            s.setString(12, p.getPublishLink());
+            s.setString(13, p.getProjectAwards());
 
             return s.executeUpdate() > 0;
         } catch (SQLException e) { e.printStackTrace(); return false; }
     }
 
     /* =====================================================
-       TÜM PROJELER  ( id + publishLink dahil )
+       TÜM PROJELER  ( id + publishLink + projectFile dahil )
        ===================================================== */
     public List<Project> getAllProjects() {
         List<Project> list = new ArrayList<>();
 
         String sql = "SELECT id, projectTopic, uploadStartDate, uploadEndDate, "
                    + "courseName, advisorName, githubLink, libraryLink, "
-                   + "projectDescription, projectImage, "
+                   + "projectDescription, projectImage, projectFile, "
                    + "projectPublished, publishLink, projectAwards "
                    + "FROM uploadfile";
 
@@ -94,12 +95,12 @@ public class ProjectDAO {
     }
 
     /* =====================================================
-       TEK PROJE  (id ile)
+       TEK PROJE (id ile)
        ===================================================== */
     public Project getProjectById(int id) {
         String sql = "SELECT id, projectTopic, uploadStartDate, uploadEndDate, "
                    + "courseName, advisorName, githubLink, libraryLink, "
-                   + "projectDescription, projectImage, "
+                   + "projectDescription, projectImage, projectFile, "
                    + "projectPublished, publishLink, projectAwards "
                    + "FROM uploadfile WHERE id = ?";
 
@@ -115,12 +116,12 @@ public class ProjectDAO {
     }
 
     /* =====================================================
-       TEK PROJE  (KONUYA göre – gerekirse)
+       TEK PROJE (KONUYA göre)
        ===================================================== */
     public Project getProjectByTopic(String topic) {
         String sql = "SELECT id, projectTopic, uploadStartDate, uploadEndDate, "
                    + "courseName, advisorName, githubLink, libraryLink, "
-                   + "projectDescription, projectImage, "
+                   + "projectDescription, projectImage, projectFile, "
                    + "projectPublished, publishLink, projectAwards "
                    + "FROM uploadfile WHERE projectTopic = ? LIMIT 1";
 
@@ -160,7 +161,7 @@ public class ProjectDAO {
         List<Project> list = new ArrayList<>();
         String sql = "SELECT id, projectTopic, uploadStartDate, uploadEndDate, "
                    + "courseName, advisorName, githubLink, libraryLink, "
-                   + "projectDescription, projectImage, "
+                   + "projectDescription, projectImage, projectFile, "
                    + "projectPublished, publishLink, projectAwards "
                    + "FROM uploadfile "
                    + "WHERE projectTopic LIKE ? "
@@ -181,7 +182,7 @@ public class ProjectDAO {
     }
 
     /* =====================================================
-       SIMILAR TOPICS (autocomplete, LIMIT 5)
+       SIMILAR TOPICS (autocomplete, LIMIT 5)
        ===================================================== */
     public List<String> getSimilarProjectTopics(String term) {
         List<String> list = new ArrayList<>();
@@ -256,7 +257,7 @@ public class ProjectDAO {
         List<Project> list = new ArrayList<>();
         String sql = "SELECT id, projectTopic, uploadStartDate, uploadEndDate, "
                    + "courseName, advisorName, githubLink, libraryLink, "
-                   + "projectDescription, projectImage, "
+                   + "projectDescription, projectImage, projectFile, "
                    + "projectPublished, publishLink, projectAwards "
                    + "FROM uploadfile ORDER BY uploadStartDate DESC LIMIT ?";
 
@@ -278,7 +279,7 @@ public class ProjectDAO {
         List<Project> list = new ArrayList<>();
         String sql = "SELECT id, projectTopic, uploadStartDate, uploadEndDate, "
                    + "courseName, advisorName, githubLink, libraryLink, "
-                   + "projectDescription, projectImage, "
+                   + "projectDescription, projectImage, projectFile, "
                    + "projectPublished, publishLink, projectAwards "
                    + "FROM uploadfile WHERE advisorName LIKE ? ORDER BY advisorName";
 
@@ -294,7 +295,7 @@ public class ProjectDAO {
     }
 
     /* =====================================================
-       Row → Project
+       Row → Project
        ===================================================== */
     private Project mapRowToProject(ResultSet r) throws SQLException {
 
@@ -308,6 +309,7 @@ public class ProjectDAO {
         String library       = r.getString("libraryLink");
         String desc          = r.getString("projectDescription");
         String img           = r.getString("projectImage");
+        String file          = r.getString("projectFile");         /* ← eklendi */
         String published     = r.getString("projectPublished");
         String publishLink   = r.getString("publishLink");
         String awards        = r.getString("projectAwards");
@@ -315,7 +317,7 @@ public class ProjectDAO {
         return new Project(id, topic, start, end,
                            course, advisor,
                            github, library,
-                           desc, img,
+                           desc, img, file,            /* ← eklendi */
                            published, publishLink, awards);
     }
 }

@@ -10,7 +10,8 @@ import jakarta.servlet.http.*;
 @MultipartConfig
 public class ProjectServlet extends HttpServlet {
 
-    private static final String UPLOAD_DIR = "uploads";
+    private static final String UPLOAD_DIR_IMG = "uploads";        // resimler
+    private static final String UPLOAD_DIR_ZIP = "uploads/zips";   // ZIP’ler
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse res)
@@ -45,21 +46,31 @@ public class ProjectServlet extends HttpServlet {
             return;
         }
 
-        /* Resim kaydetme */
-        Part imagePart     = req.getPart("projectImage");
-        String fileName    = extractFileName(imagePart);
-        String appPath     = req.getServletContext().getRealPath("");
-        String uploadPath  = appPath + File.separator + UPLOAD_DIR;
-        File   dir         = new File(uploadPath);
-        if(!dir.exists()){ dir.mkdirs(); }
-        imagePart.write(uploadPath + File.separator + fileName);
+        /* ---------- Dosyaları kaydet ---------- */
+        String appPath = req.getServletContext().getRealPath("");
 
+        /* Resim */
+        Part   imagePart   = req.getPart("projectImage");
+        String imageName   = extractFileName(imagePart);
+        File   imgDir      = new File(appPath, UPLOAD_DIR_IMG);
+        if(!imgDir.exists()) imgDir.mkdirs();
+        imagePart.write(new File(imgDir, imageName).getAbsolutePath());
+
+        /* ZIP (projectFile) */
+        Part   zipPart     = req.getPart("projectZip");
+        String zipName     = extractFileName(zipPart);
+        File   zipDir      = new File(appPath, UPLOAD_DIR_ZIP);
+        if(!zipDir.exists()) zipDir.mkdirs();
+        zipPart.write(new File(zipDir, zipName).getAbsolutePath());
+
+        /* ---------- Model ---------- */
         Project pr = new Project(projectTopic, uploadStartDate, uploadEndDate,
                                  courseName, advisorName,
                                  githubLink, libraryLink,
-                                 projectDescription, fileName,
+                                 projectDescription, imageName, zipName,   // ← ZIP adı
                                  projectPublished, publishLink, projectAwards);
 
+        /* ---------- DAO işlemleri ---------- */
         ProjectDAO dao = new ProjectDAO();
         if(!dao.insertProject(pr)){
             req.setAttribute("errorMessage","Aynı proje zaten kayıtlı!");

@@ -145,7 +145,7 @@
     <thead>
       <tr>
         <th>Proje Konusu</th><th>Yüklenen Zamanı</th><th>Ders Adı</th><th>Danışman Adı</th>
-        <th>GitHub Link</th><th>Kütüphane Linki</th><th>Publish Durumu</th><th>Ödül Sayısı (1‑5)</th><th>İşlemler</th>
+        <th>GitHub Link</th><th>Kütüphane Linki</th><th>Publish Durumu</th><th>Ödül Sayısı (1-5)</th><th>İşlemler</th>
       </tr>
     </thead>
     <tbody id="projects-body">
@@ -158,7 +158,6 @@
         <td><%= p.getAdvisorName() %></td>
         <td><a href="<%= p.getGithubLink() %>" target="_blank">GitHub Link</a></td>
         <td><a href="<%= p.getLibraryLink() %>" target="_blank"><%= p.getLibraryLink() %></a></td>
-        <!-- ——— Yalnızca burası değiştirildi ——— -->
         <td>
           <%
             if ("yes".equalsIgnoreCase(p.getProjectPublished())) {
@@ -168,16 +167,14 @@
                   <a href="<%= link %>" target="_blank">Yayın Linki</a>
           <%
                 } else { out.print("Evet"); }
-            } else {
-                out.print("Hayır");
-            }
+            } else { out.print("Hayır"); }
           %>
         </td>
-        <!-- ——— / Değişiklik ——— -->
         <td><%= p.getProjectAwards() %></td>
         <td>
           <form action="ProjectDetailServlet" method="get" style="margin:0;">
-            <input type="hidden" name="projectTopic" value="<%= p.getProjectTopic() %>">
+            <!-- 💡 Artık benzersiz id gönderiyoruz  -->
+            <input type="hidden" name="id" value="<%= p.getId() %>">
             <button type="submit" class="btn btn-info">Detay Göster</button>
           </form>
         </td>
@@ -187,11 +184,10 @@
   </table>
 </div>
 
-<footer><p>&copy; 2025 ProjectHub. All rights reserved.</p></footer>
+<footer><p>&copy; 2025 ProjectHub. All rights reserved.</p></footer>
 
 <!-- ——— JAVASCRIPT ——— -->
 <script>
-/* Mobil menü */
 document.getElementById('mobileMenuBtn')
         .addEventListener('click',()=>document.getElementById('navContainer').classList.toggle('active'));
 
@@ -204,9 +200,8 @@ document.getElementById('advisor-search-button').addEventListener('click',functi
     .then(d=>renderRows(d,true))
     .catch(()=>projectsBody.innerHTML='<tr><td colspan="9" style="text-align:center;color:red;">Error occurred!</td></tr>');
 });
-document.getElementById('advisor-search-input').addEventListener('keypress',e=>{
-  if(e.key==='Enter') document.getElementById('advisor-search-button').click();
-});
+document.getElementById('advisor-search-input')
+        .addEventListener('keypress',e=>{ if(e.key==='Enter') document.getElementById('advisor-search-button').click(); });
 
 /* Proje araması */
 const searchButton=document.getElementById('search-button'),
@@ -244,7 +239,7 @@ function renderRows(data,isAdvisor){
           '<td>'+(p.projectAwards || '')+'</td>'+
           '<td>'+
             '<form action="ProjectDetailServlet" method="get" style="margin:0;">'+
-              '<input type="hidden" name="projectTopic" value="'+(p.projectTopic || '')+'">'+
+              '<input type="hidden" name="id" value="'+(p.id || 0)+'">'+
               '<button type="submit" class="btn btn-info">Detay Göster</button>'+
             '</form>'+
           '</td>'+
