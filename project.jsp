@@ -124,14 +124,17 @@
         <li class="nav-item"><a href="FAQs.jsp" class="nav-link"><i class="fas fa-question-circle"></i><span>FAQs</span></a></li>
 
         <li class="nav-item dropdown">
-          <div class="user-profile nav-link">
-            <div class="user-avatar"><%= user != null ? user.charAt(0) : 'U' %></div>
-            <span>Account</span><i class="fas fa-chevron-down" style="margin-left:5px;font-size:12px;"></i>
-          </div>
-          <div class="dropdown-menu">
-            <a href="LogoutServlet" class="dropdown-item"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
-          </div>
-        </li>
+    <div class="user-profile nav-link">
+        <div class="user-avatar"><%= user != null ? user.charAt(0) : 'U' %></div>
+        <span>Account</span><i class="fas fa-chevron-down" style="margin-left:5px;font-size:12px;"></i>
+    </div>
+    <div class="dropdown-menu">
+        <a href="ProfileServlet" class="dropdown-item">
+    <i class="fas fa-user"></i><span>Profile</span>
+</a>
+        <a href="LogoutServlet" class="dropdown-item"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
+    </div>
+</li>
       </ul>
     </div>
   </div>

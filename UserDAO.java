@@ -1,3 +1,5 @@
+package project;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -75,5 +77,46 @@ public class UserDAO {
             e.printStackTrace();
         }
         return null;
+    }
+    
+    /** Kullanıcı adıyla e-postayı getirir */
+    public String getEmailByUserName(String userName) {
+        String sql = "SELECT email FROM loginandregister WHERE UserName = ?";
+        try (Connection c = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+             PreparedStatement s = c.prepareStatement(sql)) {
+            s.setString(1, userName);
+            try (ResultSet r = s.executeQuery()) {
+                if (r.next()) return r.getString("email");
+            }
+        } catch(SQLException e) { e.printStackTrace(); }
+        return null;
+    }
+
+    /**  
+     * Eski şifre kontrolü yapıp, eşleşiyorsa yeni şifreyi günceller  
+     * @return true = başarıyla güncellendi, false = hata veya eski şifre uyuşmadı  
+     */
+    public boolean updatePassword(String userName, String oldPwd, String newPwd) {
+        String checkSql = "SELECT 1 FROM loginandregister WHERE UserName = ? AND password = ?";
+        String updateSql = "UPDATE loginandregister SET password = ? WHERE UserName = ?";
+        try (Connection c = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+             PreparedStatement checkStmt = c.prepareStatement(checkSql)) {
+            checkStmt.setString(1, userName);
+            checkStmt.setString(2, oldPwd);
+            try (ResultSet r = checkStmt.executeQuery()) {
+                if (!r.next()) {
+                    // Eski şifre yanlış
+                    return false;
+                }
+            }
+            try (PreparedStatement updStmt = c.prepareStatement(updateSql)) {
+                updStmt.setString(1, newPwd);
+                updStmt.setString(2, userName);
+                return updStmt.executeUpdate() > 0;
+            }
+        } catch(SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

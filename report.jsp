@@ -154,7 +154,7 @@
   </table>
 </div>
 
-<footer><p>&copy; 2025 ProjectHub. All rights reserved.</p></footer>
+  <!-- comment <footer><p>&copy; 2025 ProjectHub. All rights reserved.</p></footer>-->
 
 <!-- JS -->
 <script>
