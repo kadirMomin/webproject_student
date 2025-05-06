@@ -347,4 +347,31 @@ public class ProjectDAO {
                            desc, img, file,
                            published, pubLink, awards);
     }
+    
+    
+    /* kullanıcının durum-bazlı listeleri */
+public List<Project> getUserCurrent   (String u){ return bySql(u,
+   "SELECT * FROM uploadfile WHERE uploaderName=? AND uploadEndDate>=CURDATE()"); }
+
+public List<Project> getUserFinished  (String u){ return bySql(u,
+   "SELECT * FROM uploadfile WHERE uploaderName=? AND uploadEndDate<CURDATE()"); }
+
+public List<Project> getUserApproved  (String u){ return bySql(u,
+   "SELECT * FROM uploadfile WHERE uploaderName=? AND projectPublished='yes'"); }
+
+public List<Project> getUserPending   (String u){ return bySql(u,
+   "SELECT * FROM uploadfile WHERE uploaderName=? AND projectPublished!='yes'"); }
+
+/* ortak yardımcı */
+private List<Project> bySql(String u,String sql){
+    List<Project> l=new ArrayList<>();
+    try(Connection c=DriverManager.getConnection(JDBC_URL,JDBC_USER,JDBC_PASS);
+        PreparedStatement s=c.prepareStatement(sql)){
+        s.setString(1,u);
+        try(ResultSet r=s.executeQuery()){ while(r.next()) l.add(mapRowToProject(r)); }
+    }catch(SQLException e){e.printStackTrace();}
+    return l;
 }
+
+}
+

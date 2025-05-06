@@ -10,10 +10,10 @@ public class Course {
 
     public Course(int id, String name, String instructor,
                   int totalSelected, boolean selectedByUser) {
-        this.id = id;
-        this.name = name;
-        this.instructor = instructor;
-        this.totalSelected = totalSelected;
+        this.id             = id;
+        this.name           = name;
+        this.instructor     = instructor;
+        this.totalSelected  = totalSelected;
         this.selectedByUser = selectedByUser;
     }
 
