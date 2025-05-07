@@ -18,11 +18,9 @@ public class AdvisorDAO {
     public List<Advisor> getAllAdvisors() {
         List<Advisor> list = new ArrayList<>();
         String sql = "SELECT id, name FROM advisor ORDER BY id";
-
         try (Connection c = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
              PreparedStatement s = c.prepareStatement(sql);
              ResultSet r = s.executeQuery()) {
-
             while (r.next())
                 list.add(new Advisor(r.getInt("id"), r.getString("name")));
         } catch (SQLException e) { e.printStackTrace(); }
@@ -40,41 +38,32 @@ public class AdvisorDAO {
         } catch (SQLException e) { e.printStackTrace(); return false; }
     }
 
-    /* =====================================================
-       3)  ---  TÜM DANIŞMAN SEÇİMLERİ  (Admin ekranı)  ---
-       ===================================================== */
-
+    /* ========== 3)  Admin – tüm seçimler ========= */
     public static class AdvisorSelection {
-        public final String userName;
-        public final String advisorName;
-
-        public AdvisorSelection(String userName, String advisorName) {
-            this.userName    = userName;
-            this.advisorName = advisorName;
-        }
-        public String getUserName()    { return userName;    }
+        public final String userName, advisorName;
+        public AdvisorSelection(String u,String a){ userName=u; advisorName=a; }
+        public String getUserName()    { return userName; }
         public String getAdvisorName() { return advisorName; }
     }
+    public List<AdvisorSelection> getAllSelections(){
+        List<AdvisorSelection> l=new ArrayList<>();
+        String sql="SELECT ua.userName,a.name FROM user_advisor ua JOIN advisor a ON a.id=ua.advisorId";
+        try(Connection c=DriverManager.getConnection(JDBC_URL,JDBC_USER,JDBC_PASS);
+            PreparedStatement s=c.prepareStatement(sql);
+            ResultSet r=s.executeQuery()){
+            while(r.next()) l.add(new AdvisorSelection(r.getString(1),r.getString(2)));
+        }catch(SQLException e){e.printStackTrace();}
+        return l;
+    }
 
-    public List<AdvisorSelection> getAllSelections() {
-        List<AdvisorSelection> list = new ArrayList<>();
-
-        String sql =
-          "SELECT ua.userName, a.name AS advisorName " +
-          "FROM user_advisor ua " +
-          "JOIN advisor a ON a.id = ua.advisorId " +
-          "ORDER BY ua.userName, a.name";
-
-        try (Connection c = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
-             PreparedStatement s = c.prepareStatement(sql);
-             ResultSet r = s.executeQuery()) {
-
-            while (r.next()) {
-                list.add(new AdvisorSelection(
-                        r.getString("userName"),
-                        r.getString("advisorName")));
-            }
-        } catch (SQLException e) { e.printStackTrace(); }
-        return list;
+    /* ========== 4)  Öğrencinin danışmanı var mı?  ========= */   // ← YENİ
+    public boolean hasAdvisor(String user){
+        String sql="SELECT 1 FROM user_advisor WHERE userName=? LIMIT 1";
+        try(Connection c=DriverManager.getConnection(JDBC_URL,JDBC_USER,JDBC_PASS);
+            PreparedStatement s=c.prepareStatement(sql)){
+            s.setString(1,user);
+            try(ResultSet r=s.executeQuery()){ return r.next(); }
+        }catch(SQLException e){ e.printStackTrace(); }
+        return false;
     }
 }

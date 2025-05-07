@@ -1,12 +1,21 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
-    String user     = (String) session.getAttribute("user");
-    String userName = (String) session.getAttribute("userName");
-    if (user == null) {
-        response.sendRedirect("index2.jsp?error=loginfirst&return=upload.jsp");
-        return;
-    }
+String user     = (String) session.getAttribute("user");
+String userName = (String) session.getAttribute("userName");
+if (user == null){
+    response.sendRedirect("index2.jsp?error=loginfirst&return=upload.jsp");
+    return;
+}
+
+/* ---------- DERS + DANIŞMAN ONAY KONTROLÜ ---------- */                 /* ★ */
+boolean okCourse  = new course.CourseDAO().hasApprovedCourse(user);        /* ★ */
+boolean okAdvisor = new advisor.AdvisorDAO().hasAdvisor(user);             /* ★ */
+if( !okCourse || !okAdvisor ){                                             /* ★ */
+    response.sendRedirect("courses.jsp?error=notapproved");                /* ★ */
+    return;                                                                /* ★ */
+}                                                                           /* ★ */
 %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

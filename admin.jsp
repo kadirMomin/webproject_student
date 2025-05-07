@@ -2,55 +2,70 @@
          import="java.util.*, project.Project, project.ProjectDAO,
                  advisor.Advisor, advisor.AdvisorDAO,
                  course.CourseDAO" %>
+<%-- ─────────  OTURUM  ───────── --%>
 <%
-/* ── oturum ── */
-if(session.getAttribute("user")==null){
+if (session.getAttribute("user") == null) {
     response.sendRedirect("index2.jsp?error=loginfirst&return=admin.jsp");
     return;
 }
+%>
 
-/* ── DAO’lar ── */
+<%-- ─────────  DAO’LAR  ───────── --%>
+<%
 ProjectDAO pDao = new ProjectDAO();
 AdvisorDAO aDao = new AdvisorDAO();
 CourseDAO  cDao = new CourseDAO();
+%>
 
-/* ── projeler ── */
+<%-- ─────────  PROJELER  ───────── --%>
+<%
 List<Project> all  = pDao.getAllProjects(),
-              cur  = new ArrayList<>(),
-              fin  = new ArrayList<>(),
-              appr = new ArrayList<>(),
-              pend = new ArrayList<>();
+              cur  = new ArrayList<>(), fin = new ArrayList<>(),
+              appr = new ArrayList<>(), pend = new ArrayList<>();
 
-for(Project p:all){
-    if("yes".equalsIgnoreCase(p.getProjectPublished())) appr.add(p); else pend.add(p);
-    if(p.getUploadEndDate().toLocalDate().isBefore(java.time.LocalDate.now())) fin.add(p); else cur.add(p);
+for (Project p : all) {
+    if ("yes".equalsIgnoreCase(p.getProjectPublished())) appr.add(p); else pend.add(p);
+    if (p.getUploadEndDate().toLocalDate().isBefore(java.time.LocalDate.now()))
+         fin.add(p); else cur.add(p);
 }
-int topProj=all.size(), curProj=cur.size(), uplProj=all.size(),
-    appProj=appr.size(), penProj=pend.size();
+int topProj = all.size(), curProj = cur.size(), uplProj = all.size(),
+    appProj = appr.size(), penProj = pend.size();
+%>
 
-/* ── seçim listeleri ── */
-List<CourseDAO.CourseSelection>   selCourses  = cDao.getAllSelections();
-List<AdvisorDAO.AdvisorSelection> selAdvisors = aDao.getAllSelections();
+<%-- ─────────  SEÇİMLER  ───────── --%>
+<%
+List<CourseDAO.CourseSelection>   selCourses    = cDao.getAllSelections();
+List<AdvisorDAO.AdvisorSelection> selAdvisors   = aDao.getAllSelections();
+List<CourseDAO.PendingSel>        pendingCourse = cDao.getPendingSelections();   // yeni
+%>
 
-/* ── görünüm & tablo ── */
-String view = request.getParameter("view");      // null|current|upload|approved|pending|finished|coursesel|advisorsel
-Map<String,Object> map = new HashMap<String,Object>(){{
-    put("current"  ,cur);   put("upload" ,all);  put("approved",appr);
-    put("pending"  ,pend);  put("finished",fin); put("coursesel",selCourses);
-    put("advisorsel",selAdvisors);
+<%-- ─────────  GÖRÜNÜM  ───────── --%>
+<%
+String view = request.getParameter("view"); // null|current|…|pendingcourse
+Map<String,Object> tbl = new HashMap<String,Object>(){{
+    put("current"      , cur);
+    put("upload"       , all);
+    put("approved"     , appr);
+    put("pending"      , pend);
+    put("finished"     , fin);
+    put("coursesel"    , selCourses);
+    put("advisorsel"   , selAdvisors);
+    put("pendingcourse", pendingCourse);    // derse onay listesi
 }};
-List<?> table = (List<?>) map.getOrDefault(view, Collections.emptyList());
+List<?> table = (List<?>) tbl.getOrDefault(view, Collections.emptyList());
 
 String title =
-      "current".equals(view)   ? "Güncel Projeler"
-    : "upload".equals(view)    ? "Yüklenen Projeler"
-    : "approved".equals(view)  ? "Onaylanan Projeler"
-    : "pending".equals(view)   ? "Onay Bekleyen Projeler"
-    : "finished".equals(view)  ? "Biten Projeler"
-    : "coursesel".equals(view) ? "Ders Seçimleri"
-    : "advisorsel".equals(view)? "Danışman Seçimleri"
-    : "Gelen İleti Kutusu";
+      "current".equals(view)       ? "Güncel Projeler"
+    : "upload".equals(view)        ? "Yüklenen Projeler"
+    : "approved".equals(view)      ? "Onaylanan Projeler"
+    : "pending".equals(view)       ? "Onay Bekleyen Projeler"
+    : "finished".equals(view)      ? "Biten Projeler"
+    : "coursesel".equals(view)     ? "Ders Seçimleri"
+    : "advisorsel".equals(view)    ? "Danışman Seçimleri"
+    : "pendingcourse".equals(view) ? "Ders Onayı"
+    :                               "Gelen İleti Kutusu";
 %>
+
 <!DOCTYPE html>
 <html lang="tr"><head>
 <meta charset="UTF-8"><title>Yönetici Paneli</title>
@@ -82,80 +97,111 @@ th{background:#4caf50;color:#fff;position:sticky;top:0}
 
 <div class="container">
 
-<!-- ── Menü ── -->
+<!-- ─────────  MENÜ  ───────── -->
 <aside class="sidebar">
  <ul class="menu">
-  <li data-c="dgr">Toplam Proje <span class="badge"><%=topProj%></span></li>
-  <li data-c="suc"><a href="admin.jsp?view=current"><span>Güncel Projeler</span><span class="badge"><%=curProj%></span></a></li>
-  <li data-c="inf"><a href="admin.jsp?view=upload"><span>Yüklenen Projeler</span><span class="badge"><%=uplProj%></span></a></li>
+  <li data-c="dgr">Toplam <span class="badge"><%=topProj%></span></li>
+  <li data-c="suc"><a href="admin.jsp?view=current"><span>Güncel</span><span class="badge"><%=curProj%></span></a></li>
+  <li data-c="inf"><a href="admin.jsp?view=upload"><span>Yüklenen</span><span class="badge"><%=uplProj%></span></a></li>
   <li data-c="prm"><a href="admin.jsp?view=approved"><span>Onaylanan</span><span class="badge"><%=appProj%></span></a></li>
   <li data-c="prm"><a href="admin.jsp?view=pending"><span>Onay Bekleyen</span><span class="badge"><%=penProj%></span></a></li>
   <li data-c="wrn"><a href="admin.jsp?view=finished"><span>Biten</span><span class="badge"><%=fin.size()%></span></a></li>
   <li data-c="suc"><a href="admin.jsp?view=coursesel"><span>Ders Seçimleri</span><span class="badge"><%=selCourses.size()%></span></a></li>
   <li data-c="inf"><a href="admin.jsp?view=advisorsel"><span>Danışman Seçimleri</span><span class="badge"><%=selAdvisors.size()%></span></a></li>
+  <li data-c="inf"><a href="admin.jsp?view=pendingcourse"><span>Ders Onayı</span><span class="badge"><%=pendingCourse.size()%></span></a></li>
  </ul>
 </aside>
 
-<!-- ── İçerik ── -->
+<!-- ─────────  İÇERİK  ───────── -->
 <section class="content"><div class="card">
 <h4 style="margin:0 0 15px"><%=title%></h4>
 
-<% if(view==null){ %>
-  <table><tr><th>İleti Amacı</th><th>Konu</th><th>Tarih</th><th>Durum</th></tr>
-        <tr><td>Bilgi</td><td>Proje Değiştir</td><td>2025-03-18</td><td>✓</td></tr>
-        <tr><td>Bilgi</td><td>Sunum</td><td>2025-03-15</td><td>✓</td></tr></table>
-
-<% } else if("coursesel".equals(view)){ %>
-  <table><tr><th>UserName</th><th>Ders</th><th>Eğitmen</th></tr>
-    <% for(course.CourseDAO.CourseSelection c:selCourses){ %>
-      <tr><td><%=c.getUserName()%></td><td><%=c.getCourseName()%></td><td><%=c.getInstructor()%></td></tr>
-    <% } %>
-    <% if(selCourses.isEmpty()){ %><tr><td colspan="3" style="text-align:center">Kayıt yok</td></tr><% } %>
-  </table>
-
-<% } else if("advisorsel".equals(view)){ %>
-  <table><tr><th>UserName</th><th>Danışman</th></tr>
-    <% for(advisor.AdvisorDAO.AdvisorSelection a:selAdvisors){ %>
-      <tr><td><%=a.getUserName()%></td><td><%=a.getAdvisorName()%></td></tr>
-    <% } %>
-    <% if(selAdvisors.isEmpty()){ %><tr><td colspan="2" style="text-align:center">Kayıt yok</td></tr><% } %>
-  </table>
-
-<% } else { %> <!-- tüm proje görünümleri -->
-
+<%-- ### DERS ONAYI GÖRÜNÜMÜ ### --%>
+<% if ("pendingcourse".equals(view)) { %>
   <table>
-    <tr><th>Konu</th><th>Ders</th><th>Danışman</th><th>Öğrenci</th><th>Durum</th>
-        <% if("pending".equals(view)||"approved".equals(view)){ %><th>İşlem</th><% } %></tr>
-
-    <% for(Project p:(List<Project>)table){ %>
+    <tr><th>UserName</th><th>Ders</th><th>Eğitmen</th><th>İşlem</th></tr>
+    <% for (course.CourseDAO.PendingSel ps : pendingCourse) { %>
       <tr>
-        <td><%=p.getProjectTopic()%></td>
-        <td><%=p.getCourseName()%></td>
-        <td><%=p.getAdvisorName()%></td>
-        <td><%=p.getUploaderName()%></td>
-        <td><%= "yes".equalsIgnoreCase(p.getProjectPublished())?"Onaylı":"Beklemede" %></td>
-
-        <% if("pending".equals(view)){ %>
-          <td>
-             <a class="btn btn-select" href="ProjectApproveServlet?id=<%=p.getId()%>">
-                <i class="fas fa-check"></i>Onay</a>
-             <a class="btn btn-delete" href="ProjectRejectServlet?id=<%=p.getId()%>&from=pending">
-                <i class="fas fa-trash"></i>Sil</a>
-          </td>
-        <% } else if("approved".equals(view)){ %>
-          <td>
-             <a class="btn btn-delete" href="ProjectRejectServlet?id=<%=p.getId()%>&from=approved">
-                <i class="fas fa-times"></i>Kaldır</a>
-          </td>
-        <% } %>
+        <td><%= ps.getUserName() %></td>
+        <td><%= ps.getCourseName() %></td>
+        <td><%= ps.getInstructor() %></td>
+        <td>
+           <a class="btn btn-select"
+              href="CourseApproveServlet?id=<%=ps.getRecId()%>&act=ok"><i class="fas fa-check"></i>Onay</a>
+           <a class="btn btn-delete"
+              href="CourseApproveServlet?id=<%=ps.getRecId()%>&act=del"><i class="fas fa-times"></i>Sil</a>
+        </td>
       </tr>
     <% } %>
-
-    <% if(table.isEmpty()){ %>
-       <tr><td colspan="6" style="text-align:center">Kayıt yok</td></tr>
+    <% if (pendingCourse.isEmpty()) { %>
+       <tr><td colspan="4" style="text-align:center">Bekleyen ders seçimi yok</td></tr>
     <% } %>
   </table>
 
+<%-- ### DERS & DAN. LİSTELERİ ### --%>
+<% } else if ("coursesel".equals(view)) { %>
+  <table><tr><th>UserName</th><th>Ders</th><th>Eğitmen</th></tr>
+    <% for (course.CourseDAO.CourseSelection c : selCourses) { %>
+      <tr><td><%=c.getUserName()%></td><td><%=c.getCourseName()%></td><td><%=c.getInstructor()%></td></tr>
+    <% } %>
+    <% if (selCourses.isEmpty()) { %><tr><td colspan="3" style="text-align:center">Kayıt yok</td></tr><% } %>
+  </table>
+
+<% } else if ("advisorsel".equals(view)) { %>
+  <table><tr><th>UserName</th><th>Danışman</th></tr>
+    <% for (advisor.AdvisorDAO.AdvisorSelection a : selAdvisors) { %>
+      <tr><td><%=a.getUserName()%></td><td><%=a.getAdvisorName()%></td></tr>
+    <% } %>
+    <% if (selAdvisors.isEmpty()) { %><tr><td colspan="2" style="text-align:center">Kayıt yok</td></tr><% } %>
+  </table>
+
+<%-- ### PROJE TABLOLARI ### --%>
+<% } else if (!table.isEmpty() || view!=null) { %>
+  <table>
+   <tr>
+     <th>Konu</th>
+     <% if (!"pending".equals(view)) { %>
+          <th>Ders</th><th>Danışman</th><th>Öğrenci</th>
+     <% } %>
+     <th>Durum</th>
+     <% if ("pending".equals(view) || "approved".equals(view)) { %><th>İşlem</th><% } %>
+   </tr>
+
+   <% for (Project p : (List<Project>) table) { %>
+     <tr>
+       <td><%= p.getProjectTopic() %></td>
+       <% if (!"pending".equals(view)) { %>
+            <td><%= p.getCourseName()   %></td>
+            <td><%= p.getAdvisorName()  %></td>
+            <td><%= p.getUploaderName() %></td>
+       <% } %>
+       <td><%= "yes".equalsIgnoreCase(p.getProjectPublished())?"Onaylı":"Beklemede" %></td>
+
+       <% if ("pending".equals(view)) { %>
+         <td>
+           <a class="btn btn-select" href="ProjectApproveServlet?id=<%=p.getId()%>">
+               <i class="fas fa-check"></i>Onay</a>
+           <a class="btn btn-delete" href="ProjectRejectServlet?id=<%=p.getId()%>&from=pending">
+               <i class="fas fa-trash"></i>Sil</a>
+         </td>
+       <% } else if ("approved".equals(view)) { %>
+         <td>
+           <a class="btn btn-delete" href="ProjectRejectServlet?id=<%=p.getId()%>&from=approved">
+               <i class="fas fa-times"></i>Kaldır</a>
+         </td>
+       <% } %>
+     </tr>
+   <% } %>
+
+   <% if (table.isEmpty()) { %>
+      <tr><td colspan="6" style="text-align:center">Kayıt yok</td></tr>
+   <% } %>
+  </table>
+
+<%-- ### GİRİŞTE GELEN İLETİ  ### --%>
+<% } else { %>
+  <table><tr><th>İleti</th><th>Tarih</th><th>Durum</th></tr>
+        <tr><td>Sistem açıldı</td><td>2025-03-18</td><td>✓</td></tr></table>
 <% } %>
-</div></section></div>
-</body></html>
+
+</div></section></div></body></html>

@@ -91,11 +91,13 @@ List<Advisor> advisorList = aDao.getAllAdvisors();
   </style>
 </head>
 <body>
+<p style="color:red">Ders sayısı: <%= courseList.size() %></p>
 
 <!-- ————— ÜST BAR ————— -->
 <div class="header">
   <a href="insert.jsp" class="brand"><img src="1.png" class="logo" alt="logo">ProjectHub</a>
 </div>
+
 
 <div class="container-flex">
 

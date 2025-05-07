@@ -43,17 +43,16 @@ public class CourseDAO {
         return list;
     }
 
-    /* ========== 2) Ders seç / sil / sorun bildir ========= */
-    public boolean selectCourse(String user, int courseId) {
-        String sql = "INSERT IGNORE INTO user_course (userName, courseId) VALUES (?,?)";
-        try (Connection c = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
-             PreparedStatement s = c.prepareStatement(sql)) {
-            s.setString(1, user);
-            s.setInt(2, courseId);
-            return s.executeUpdate() > 0;
-        } catch (SQLException e) { e.printStackTrace(); return false; }
-    }
-
+    /* ======= DERS SEÇ (approved alanına mutlaka 0 yaz) ======= */
+public boolean selectCourse(String user,int courseId){
+    String sql = "INSERT IGNORE INTO user_course (userName,courseId,approved) VALUES (?,?,0)";
+    try(Connection c = DriverManager.getConnection(JDBC_URL,JDBC_USER,JDBC_PASS);
+        PreparedStatement s = c.prepareStatement(sql)){
+        s.setString(1,user);
+        s.setInt   (2,courseId);
+        return s.executeUpdate() > 0;
+    }catch(SQLException e){ e.printStackTrace(); return false; }
+}
     public boolean deleteCourse(String user, int courseId) {
         String sql = "DELETE FROM user_course WHERE userName=? AND courseId=?";
         try (Connection c = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
@@ -132,17 +131,26 @@ public static class PendingSel{
     public String getInstructor(){return instructor;}
 }
 
+/* ================= BEKLEYEN DERS SEÇİMLERİ ================= */
 public List<PendingSel> getPendingSelections(){
-    List<PendingSel> list=new ArrayList<>();
-    String sql="SELECT uc.id,uc.userName,c.name,c.instructor "+
-               "FROM user_course uc JOIN course c ON c.id=uc.courseId "+
-               "WHERE uc.approved=0";
-    try(Connection c=DriverManager.getConnection(JDBC_URL,JDBC_USER,JDBC_PASS);
-        PreparedStatement s=c.prepareStatement(sql);
-        ResultSet r=s.executeQuery()){
+    List<PendingSel> list = new ArrayList<>();
+
+    String sql =
+      "SELECT uc.id, uc.userName, c.name, c.instructor " +
+      "FROM   user_course uc " +
+      "LEFT   JOIN course c ON c.id = uc.courseId " +
+      "WHERE  COALESCE(uc.approved,0) = 0";         // 0 ***veya*** NULL
+
+    try(Connection c = DriverManager.getConnection(JDBC_URL,JDBC_USER,JDBC_PASS);
+        PreparedStatement s = c.prepareStatement(sql);
+        ResultSet r = s.executeQuery()){
+
         while(r.next())
-          list.add(new PendingSel(r.getInt(1),r.getString(2),r.getString(3),r.getString(4)));
-    }catch(SQLException e){e.printStackTrace();}
+            list.add(new PendingSel(r.getInt(1),
+                                    r.getString(2),
+                                    r.getString(3),
+                                    r.getString(4)));
+    }catch(SQLException e){ e.printStackTrace(); }
     return list;
 }
 
@@ -156,5 +164,17 @@ public void approveSelection(int recId,boolean approve){
         s.setInt(1,recId); s.executeUpdate();
     }catch(SQLException e){e.printStackTrace();}
 }
+
+/* ========== YENİ: Kullanıcının onaylanmış dersi var mı? ========== */      /* ★ */
+public boolean hasApprovedCourse(String user){
+    String sql="SELECT 1 FROM user_course WHERE userName=? AND approved=1 LIMIT 1";
+    try(Connection c=DriverManager.getConnection(JDBC_URL,JDBC_USER,JDBC_PASS);
+        PreparedStatement s=c.prepareStatement(sql)){
+        s.setString(1,user);
+        try(ResultSet r=s.executeQuery()){ return r.next(); }
+    }catch(SQLException e){ e.printStackTrace(); }
+    return false;
+}
+
 
 }
