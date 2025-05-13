@@ -4,9 +4,23 @@
                  course.CourseDAO" %>
 <%-- ─────────  OTURUM  ───────── --%>
 <%
-if (session.getAttribute("user") == null) {
-    response.sendRedirect("index2.jsp?error=loginfirst&return=admin.jsp");
+String adminEmail = (String) session.getAttribute("admin");
+if(adminEmail == null){          // yönetici oturumu yok
+    response.sendRedirect("combined.jsp");
     return;
+}
+
+/* —— Hoş-geldiniz ismi —— */
+String adminName = (String) session.getAttribute("adminName");
+if (adminName == null) adminName = adminEmail; 
+%>
+ 
+<%-- ─────────  ÇIKIŞ İSTEĞİ  ───────── --%>
+<%
+if ("logout".equals(request.getParameter("do"))) {   // ← admin.jsp?do=logout
+    session.invalidate();                           // 1) oturumu sil
+    response.sendRedirect("insert.jsp");            // 2) anasayfaya dön
+    return;                                         // 3) geri kalan kod çalışmaz
 }
 %>
 
@@ -89,11 +103,22 @@ th{background:#4caf50;color:#fff;position:sticky;top:0}
 .btn{padding:4px 8px;border:none;border-radius:4px;color:#fff;font-size:12px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
 .btn-select{background:#17a2b8}.btn-delete{background:#dc3545}
 @media(max-width:900px){.container{flex-direction:column}.sidebar{width:100%}}
+header a.logout{float:right;color:#fff;text-decoration:none;font-size:14px;padding:4px 8px}
+header a.logout:hover{text-decoration:underline}
+.container{display:flex;max-width:1180px;margin:25px auto;gap:20px;padding:0 10px}
+header span.welcome{margin-left:25px;font-size:15px;font-weight:400;}
 </style>
 </head>
 <body>
 
-<header>Yönetici Paneli</header>
+<header>
+    Yönetici Paneli
+        <span class="welcome">Hoş geldiniz, <%= adminName %></span>
+   <!-- ─────── ÇIKIŞ BUTONU ─────── -->
+  <a href="admin.jsp?do=logout" class="logout">
+      <i class="fas fa-sign-out-alt"></i> Çıkış
+  </a>
+</header>
 
 <div class="container">
 

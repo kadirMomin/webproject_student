@@ -4,52 +4,52 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>JSP Page</title>
-         <link rel="shortcut icon" href="https://sidcupfamilygolf.com/wp-content/themes/puttosaurus/favicons/favicon-32x32.png" type="image/x-icon" />
-         <link href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css" rel="stylesheet" />
-         <link rel="stylesheet" href="style.css" />
-         <style>
+        <link rel="shortcut icon" href="https://sidcupfamilygolf.com/wp-content/themes/puttosaurus/favicons/favicon-32x32.png" type="image/x-icon" />
+        <link href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css" rel="stylesheet" />
+        <link rel="stylesheet" href="style.css" />
+        <style>
             /* Mevcut stil kodlarınız burada yer alıyorsa, onları koruyun; 
                aşağıda sadece ek dropdown CSS kuralları eklenmiştir. */
-               
+
             /* Dropdown için CSS */
             .dropdown {
-              position: relative;
-              display: inline-block;
+                position: relative;
+                display: inline-block;
             }
             .dropbtn {
-              color: #fff;
-              background-color: transparent;
-              border: none;
-              cursor: pointer;
-              font-size: 16px;
-              padding: 0;
+                color: #fff;
+                background-color: transparent;
+                border: none;
+                cursor: pointer;
+                font-size: 16px;
+                padding: 0;
             }
             .dropdown-content {
-              display: none;
-              position: absolute;
-              background-color: #343a40;
-              min-width: 160px;
-              box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-              z-index: 9999;
+                display: none;
+                position: absolute;
+                background-color: #343a40;
+                min-width: 160px;
+                box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+                z-index: 9999;
             }
             .dropdown-content a {
-              color: #fff;
-              padding: 8px 12px;
-              text-decoration: none;
-              display: block;
-              transition: background-color 0.3s;
+                color: #fff;
+                padding: 8px 12px;
+                text-decoration: none;
+                display: block;
+                transition: background-color 0.3s;
             }
             .dropdown-content a:hover {
-              background-color: #95c11e;
-              color: #000;
+                background-color: #95c11e;
+                color: #000;
             }
             .dropdown:hover .dropdown-content {
-              display: block;
+                display: block;
             }
-         </style>
+        </style>
     </head>
     <body>
-        
+
         <!-- Language Selector -->
         <div id="language-selector" style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
             <select id="language">
@@ -58,14 +58,14 @@
             </select>
         </div>
 
-       <div id="nav">
+        <div id="nav">
             <img src="1.png" alt="" />
             <div id="search-bar">
                 <input type="text" id="search-input" placeholder="Search projects...">
                 <button id="search-button">Search</button>
             </div>
             <a href="insert.jsp"><h4 data-lang="en">HOME</h4><h4 data-lang="tr" style="display: none;">ANA SAYFA</h4></a>
-            
+
             <!-- Projects dropdown menü -->
             <div class="dropdown">
                 <a class="dropbtn">
@@ -77,8 +77,19 @@
                     <a href="report.jsp">Project Reports</a>
                 </div>
             </div>
-            
-            <a href="upload.jsp"><h4 data-lang="en">UPLOAD</h4><h4 data-lang="tr" style="display: none;">YÜKLE</h4></a>
+            <!-- ▼▼▼ YENİ: UPLOAD menüsü Admin Panel bağlantısıyla birlikte ▼▼▼ -->
+            <div class="dropdown">
+                <a class="dropbtn">
+                    <h4 data-lang="en">UPLOAD</h4>
+                    <h4 data-lang="tr" style="display:none;">YÜKLE</h4>
+                </a>
+                <div class="dropdown-content">
+                    <a href="upload.jsp">Upload Project</a>
+                    <a href="combined.jsp">Yönetim Panel</a>
+                </div>
+            </div>
+            <!--<a href="upload.jsp"><h4 data-lang="en">UPLOAD</h4><h4 data-lang="tr" style="display: none;">YÜKLE</h4></a>
+              <a href="combined.jsp"><h4 data-lang="en">ADMIN</h4><h4 data-lang="tr" style="display:none;">YÖNETİCİ</h4></a>-->
             <a href="FAQs.jsp"><h4 data-lang="en">FAQs</h4><h4 data-lang="tr" style="display: none;">SSS</h4></a>
             <a href="index2.jsp"><h4 data-lang="en">SIGN UP OR SIGN IN</h4><h4 data-lang="tr" style="display: none;">KAYIT OL / GİRİŞ YAP</h4></a>
         </div>
@@ -264,14 +275,14 @@
                 const savedLanguage = localStorage.getItem('language') || 'en';
                 languageSelector.value = savedLanguage;
                 changeLanguage(savedLanguage);
-                
+
                 languageSelector.addEventListener('change', (event) => {
                     const selectedLanguage = event.target.value;
                     localStorage.setItem('language', selectedLanguage);
                     changeLanguage(selectedLanguage);
                 });
             });
-            
+
             function changeLanguage(lang) {
                 document.querySelectorAll('[data-lang]').forEach(element => {
                     if (element.getAttribute('data-lang') === lang) {
