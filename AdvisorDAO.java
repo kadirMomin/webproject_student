@@ -66,4 +66,28 @@ public class AdvisorDAO {
         }catch(SQLException e){ e.printStackTrace(); }
         return false;
     }
+    
+    /* ... mevcut kod ... */
+
+/** Yöneticinin seçimi tamamen silmesine yarar */
+public void deleteSelection(String userName){
+    String sql="DELETE FROM user_advisor WHERE userName=?";
+    try(Connection c=DriverManager.getConnection(JDBC_URL,JDBC_USER,JDBC_PASS);
+        PreparedStatement s=c.prepareStatement(sql)){
+        s.setString(1,userName);
+        s.executeUpdate();
+    }catch(SQLException e){e.printStackTrace();}
+}
+
+/*  AdvisorDAO.java  ------------------------------------------ */
+public void clearAdvisor(String user) {
+    String sql = "DELETE FROM user_advisor WHERE userName=?";
+    try (Connection c = DriverManager.getConnection(JDBC_URL,JDBC_USER,JDBC_PASS);
+         PreparedStatement s = c.prepareStatement(sql)) {
+        s.setString(1, user);
+        s.executeUpdate();
+    } catch (SQLException e) { e.printStackTrace(); }
+}
+
+ 
 }

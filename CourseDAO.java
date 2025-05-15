@@ -16,32 +16,41 @@ public class CourseDAO {
     }
 
     /* ========== 1) Ders listesi (öğrenciye özel) ========= */
-    public List<Course> getAllCourses(String userName) {
-        List<Course> list = new ArrayList<>();
+/* ----------------  getAllCourses  ---------------- */
 
-        String sql =
-          "SELECT c.id, c.name, c.instructor, " +
-          "       (SELECT COUNT(*) FROM user_course uc WHERE uc.courseId = c.id)          AS totalSel, " +
-          "       EXISTS(SELECT 1 FROM user_course uc WHERE uc.courseId = c.id AND uc.userName = ?) AS sel " +
-          "FROM course c ORDER BY c.id";
+public List<Course> getAllCourses(String userName) {
+    List<Course> list = new ArrayList<>();
 
-        try (Connection c = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
-             PreparedStatement s = c.prepareStatement(sql)) {
+    String sql =
+      "SELECT c.id, c.name, c.instructor, " +
+      /* toplam seçim sayısında değişikliğe gerek yok */
+      "       (SELECT COUNT(*) FROM user_course uc WHERE uc.courseId = c.id)          AS totalSel, " +
+      /* === YENİ: sadece approved = 0 (veya NULL) ise seçili say === */
+      "       EXISTS(SELECT 1 FROM user_course uc " +
+      "              WHERE uc.courseId = c.id " +
+      "                AND uc.userName = ? " +
+      "                AND COALESCE(uc.approved,0) = 0)                              AS sel " +
+      "FROM course c ORDER BY c.id";
 
-            s.setString(1, userName);
-            try (ResultSet r = s.executeQuery()) {
-                while (r.next()) {
-                    list.add(new Course(
-                            r.getInt("id"),
-                            r.getString("name"),
-                            r.getString("instructor"),
-                            r.getInt("totalSel"),
-                            r.getBoolean("sel")));
-                }
+    try (Connection c = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+         PreparedStatement s = c.prepareStatement(sql)) {
+
+        s.setString(1, userName);
+
+        try (ResultSet r = s.executeQuery()) {
+            while (r.next()) {
+                list.add(new Course(
+                        r.getInt("id"),
+                        r.getString("name"),
+                        r.getString("instructor"),
+                        r.getInt("totalSel"),
+                        r.getBoolean("sel")));
             }
-        } catch (SQLException e) { e.printStackTrace(); }
-        return list;
-    }
+        }
+    } catch (SQLException e) { e.printStackTrace(); }
+
+    return list;
+}
 
     /* ======= DERS SEÇ (approved alanına mutlaka 0 yaz) ======= */
 public boolean selectCourse(String user,int courseId){
@@ -175,6 +184,18 @@ public boolean hasApprovedCourse(String user){
     }catch(SQLException e){ e.printStackTrace(); }
     return false;
 }
+ 
+/*  CourseDAO.java  ------------------------------------------- */
+public void clearApprovedCourse(String user) {
+    String sql = "DELETE FROM user_course WHERE userName=? AND approved=1";
+    try (Connection c = DriverManager.getConnection(JDBC_URL,JDBC_USER,JDBC_PASS);
+         PreparedStatement s = c.prepareStatement(sql)) {
+        s.setString(1, user);
+        s.executeUpdate();
+    } catch (SQLException e) { e.printStackTrace(); }
+}
+
+
 
 
 }

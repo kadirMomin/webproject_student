@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
+import course.CourseDAO;          // ← EKLENDİ
+import advisor.AdvisorDAO;        // ← EKLENDİ
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -30,12 +33,12 @@ public class ProjectServlet extends HttpServlet {
         res.setContentType("text/html;charset=UTF-8");
 
         /* -------------------------------------------------
-           1) Oturumdan kullanıcı adını al (uploaderName)
+           1) Oturumdan kullanıcı adını al
            ------------------------------------------------- */
         HttpSession session = req.getSession(false);
         String userName = (session != null)
                 ? (String) session.getAttribute("userName")
-                : null;            // null kalması olağan dışı bir durumdur
+                : null;
 
         /* -------------------------------------------------
            2) Form alanlarını oku
@@ -86,30 +89,32 @@ public class ProjectServlet extends HttpServlet {
 
         /* -------------------------------------------------
            4) Model nesnesi
-           -------------------------------------------------
-           Project sınıfınızda aşağıdaki sıra ile **14 parametreli**
-           bir constructor bulunmalıdır. Sırayı farklı tutuyorsanız
-           bu çağrıyı kendi constructor'ınıza göre düzenleyin.
            ------------------------------------------------- */
         Project pr = new Project(
                 projectTopic, uploadStartDate, uploadEndDate,
-                courseName, advisorName, userName,          // uploaderName EKLENDİ
+                courseName, advisorName, userName,
                 githubLink, libraryLink,
                 projectDescription, imageName, zipName,
                 projectPublished, publishLink, projectAwards
         );
-       
-    // ← yalnızca bu satır
 
         /* -------------------------------------------------
            5) Veritabanına ekle
            ------------------------------------------------- */
         ProjectDAO dao = new ProjectDAO();
-        if (!dao.insertProject(pr)) {
+        boolean inserted = dao.insertProject(pr);
+
+        if (!inserted) {
             req.setAttribute("errorMessage", "Aynı proje zaten kayıtlı!");
             req.getRequestDispatcher("upload.jsp").forward(req, res);
             return;
         }
+
+        /* -------------------------------------------------
+           5-BİS) Proje yüklendi → onaylı ders & danışman sıfırla   ★★★
+           ------------------------------------------------- */
+        new CourseDAO().clearApprovedCourse(userName);   // seçilen dersi sil
+        new AdvisorDAO().clearAdvisor(userName);         // danışmanı sil
 
         /* -------------------------------------------------
            6) Listeyi yenile ve project.jsp'ye yönlendir
