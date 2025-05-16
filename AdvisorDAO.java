@@ -89,5 +89,40 @@ public void clearAdvisor(String user) {
     } catch (SQLException e) { e.printStackTrace(); }
 }
 
- 
+ /* ========== KULLANICI DANIŞMAN SEÇMİŞ Mİ? ========== */
+public boolean hasSelectedAdvisor(String user){
+    String sql="SELECT 1 FROM user_advisor WHERE userName=? LIMIT 1";
+    try(Connection c=DriverManager.getConnection(JDBC_URL,JDBC_USER,JDBC_PASS);
+        PreparedStatement s=c.prepareStatement(sql)){
+        s.setString(1,user);
+        try(ResultSet r=s.executeQuery()){ return r.next(); }
+    }catch(SQLException e){ e.printStackTrace(); }
+    return false;
+}
+/*  KULLANICININ ONAY BEKLEYEN DANIŞMANI VAR MI?  */
+public boolean hasPendingAdvisor(String userName){
+    String sql = "SELECT 1 FROM user_advisor "
+               + "WHERE userName=? AND COALESCE(approved,0)=0 LIMIT 1";
+    try(Connection c = DriverManager.getConnection(JDBC_URL,JDBC_USER,JDBC_PASS);
+        PreparedStatement ps = c.prepareStatement(sql)){
+        ps.setString(1,userName);
+        try(ResultSet r = ps.executeQuery()){ return r.next(); }
+    }catch(SQLException e){ e.printStackTrace(); }
+    return false;
+}
+/*  KULLANICININ ONAYLANMIŞ DANIŞMAN ID’LERİ  */
+public List<Integer> getApprovedAdvisorIds(String userName){
+    List<Integer> list = new ArrayList<>();
+    String sql = "SELECT advisorId FROM user_advisor "
+               + "WHERE userName=? AND approved=1";
+    try(Connection c = DriverManager.getConnection(JDBC_URL,JDBC_USER,JDBC_PASS);
+        PreparedStatement ps = c.prepareStatement(sql)){
+        ps.setString(1,userName);
+        try(ResultSet r = ps.executeQuery()){
+            while(r.next()) list.add(r.getInt(1));
+        }
+    }catch(SQLException e){ e.printStackTrace(); }
+    return list;
+}
+
 }

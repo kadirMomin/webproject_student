@@ -196,6 +196,20 @@ public void clearApprovedCourse(String user) {
 }
 
 
+/*  KULLANICININ ONAYLANMIŞ DERS ID’LERİ  */
+public List<Integer> getApprovedCourseIds(String userName){
+    List<Integer> list = new ArrayList<>();
+    String sql = "SELECT courseId FROM user_course "
+               + "WHERE userName=? AND approved=1";
+    try(Connection c = DriverManager.getConnection(JDBC_URL,JDBC_USER,JDBC_PASS);
+        PreparedStatement ps = c.prepareStatement(sql)){
+        ps.setString(1,userName);
+        try(ResultSet r = ps.executeQuery()){
+            while(r.next()) list.add(r.getInt(1));
+        }
+    }catch(SQLException e){ e.printStackTrace(); }
+    return list;
+}
 
 
 }
