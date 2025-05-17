@@ -19,6 +19,8 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Project List - ProjectHub</title>
+        
+        
 
         <link rel="stylesheet"
               href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -298,8 +300,9 @@
                 font-weight:bold;
             }
         </style>
+        
     </head>
-
+    
     <body>
         <!-- ——— HEADER ——— -->
         <header>
@@ -373,6 +376,20 @@
                 </div>
             </div>
         </header>
+ <%-- Yönetici onay mesajı (tek seferlik) --%>
+<%
+    String ok = (String) session.getAttribute("approvedMsg");
+    if (ok != null) {
+%>
+<div style="background:#d4edda;color:#155724;border:1px solid #c3e6cb;
+            padding:10px 12px;border-radius:4px;margin:18px auto;
+            max-width:95%;font-weight:600;">
+    <%= ok %>
+</div>
+<%
+        session.removeAttribute("approvedMsg");   // bir daha gösterilmesin
+    }
+%>
 
         <!-- ——— CONTENT ——— -->
         <div id="getting-started-container">
